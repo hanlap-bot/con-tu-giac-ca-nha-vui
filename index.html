@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Khu Vườn Của Con 🌸 - Theo Dõi Thói Quen Cho Bé</title>
+    <title>Khu Vườn Của Con 🌸 - Theo Dõi Thói Quen Cho Bé (V5.3 - 2026-10-26)</title>
 
     <!-- Cấu hình chuẩn Web App (PWA) toàn màn hình cho iPadOS / iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,7 +17,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Google Fonts: Quicksand tròn trịa, dễ đọc cho bé lớp 1 -->
+    <!-- Google Fonts: Quicksand tròn trịa, dễ đọc cho bé -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- Thư viện Pháo hoa giấy Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
@@ -33,10 +33,15 @@
             min-height: 100vh;
             color: #1e293b;
             overflow-x: hidden;
+            transition: background 0.8s ease;
         }
 
+        body.theme-morning { background: linear-gradient(160deg, #fff1f2 0%, #fef3c7 50%, #ecfdf5 100%); }
+        body.theme-afternoon { background: linear-gradient(160deg, #e0f2fe 0%, #fef9c3 50%, #ecfdf5 100%); }
+        body.theme-evening { background: linear-gradient(160deg, #ede9fe 0%, #fce7f3 50%, #e0e7ff 100%); }
+
         .kid-card {
-            background: rgba(255, 255, 255, 0.94);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 1.75rem;
             border: 3px solid #fbcfe8;
             box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.14), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
@@ -53,8 +58,8 @@
         }
 
         @keyframes floatSlow {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-7px) rotate(1deg); }
         }
 
         @keyframes pop {
@@ -69,6 +74,17 @@
             100% { transform: translateY(130px) scale(1.1); opacity: 0; }
         }
 
+        @keyframes firePulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.5)); }
+            50% { transform: scale(1.18); filter: drop-shadow(0 0 12px rgba(234, 88, 12, 0.9)); }
+        }
+
+        @keyframes shakeWarn {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
         .plant-float {
             animation: floatSlow 3.4s ease-in-out infinite;
         }
@@ -77,11 +93,18 @@
             animation: pop 0.35s ease-out;
         }
 
+        .shake-anim {
+            animation: shakeWarn 0.35s ease-in-out;
+        }
+
         .water-drop-anim {
             animation: dropFall 0.95s ease-in forwards;
         }
 
-        /* Tùy chỉnh thanh cuộn mềm mại */
+        .streak-fire-glow {
+            animation: firePulse 1.5s ease-in-out infinite;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -96,7 +119,7 @@
         }
     </style>
 </head>
-<body class="pb-14 select-none">
+<body id="app-body" class="theme-morning pb-14 select-none">
 
     <!-- Thông báo nổi (Toast) -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
@@ -106,7 +129,7 @@
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm font-bold">
             <div class="flex items-center gap-2">
                 <span class="text-lg">🔓</span>
-                <span>Đang mở <strong>Chế Độ Của Bố Mẹ</strong> (Hiện nút Thêm/Sửa/Xóa). Tự khóa sau: <strong id="parent-autolock-timer" class="bg-white/20 px-2 py-0.5 rounded-lg">05:00</strong></span>
+                <span>Đang mở <strong>Chế Độ Của Bố Mẹ</strong> (Hiện nút Thêm/Sửa/Xóa & Phạt Sao). Tự khóa sau: <strong id="parent-autolock-timer" class="bg-white/20 px-2 py-0.5 rounded-lg">05:00</strong></span>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openParentToolsModal()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-xl font-extrabold transition">
@@ -145,20 +168,20 @@
                                 ✨ Ước mơ: Họa sĩ nhí
                             </span>
                             <span id="current-date-badge" class="text-xs sm:text-sm font-bold bg-white/80 text-pink-500 px-3 py-1 rounded-full border border-pink-200 shadow-sm">
-                                Thứ Bảy, 17/10
+                                Thứ Bảy, 24/10
                             </span>
                             <span id="kid-safe-status-badge" class="text-[11px] sm:text-xs font-extrabold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-300 shadow-sm flex items-center gap-1" title="Bé chỉ có thể tích việc và chăm cây, không thể tự xóa/sửa">
                                 🛡️ Chế Độ Bé Yêu (Đã khóa Xóa/Sửa)
                             </span>
                         </div>
-                        <!-- Lời nhắn từ Bố + Nút đọc giọng nói cho bé lớp 1 -->
+                        <!-- Lời nhắn từ Bố + Nút đọc giọng nói truyền cảm -->
                         <div class="mt-2 bg-white/90 rounded-2xl p-2.5 sm:px-4 border border-pink-200 shadow-sm flex items-center justify-between gap-2">
                             <p class="text-sm sm:text-base font-semibold text-slate-600 flex items-center gap-2">
                                 <span class="text-xl shrink-0">💌</span>
                                 <span><strong class="text-pink-600">Bố nhắn:</strong> "<span id="dad-message-text">Chúc con gái của Bố một ngày học vui và trồng được cây thật đẹp nhé! Yêu con!</span>"</span>
                             </p>
                             <div class="flex items-center gap-1.5 shrink-0">
-                                <button onclick="speakDadMessage()" class="text-sky-600 hover:text-sky-800 px-2.5 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 transition text-xs font-extrabold flex items-center gap-1" title="Đọc to lời nhắn của Bố cho bé nghe">
+                                <button onclick="speakDadMessage()" class="text-sky-600 hover:text-sky-800 px-2.5 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 transition text-xs font-extrabold flex items-center gap-1" title="Đọc to lời nhắn của Bố bằng giọng Tiếng Việt truyền cảm">
                                     🔊 <span class="hidden sm:inline">Nghe</span>
                                 </button>
                                 <button id="edit-profile-btn" onclick="handleParentProtectedAction(() => openEditDadMessageModal())" class="hidden text-pink-500 hover:text-pink-700 px-2.5 py-1 rounded-xl bg-pink-50 hover:bg-pink-100 transition text-xs font-bold items-center gap-1" title="Cấu hình thông tin của bé & lời nhắn">
@@ -169,19 +192,22 @@
                     </div>
                 </div>
 
-                <!-- Các huy hiệu: Chuỗi ngày (Streak), Sao tích lũy, Sổ Nhãn Dán, Nhật ký, Nút điều khiển -->
+                <!-- Các huy hiệu: Chuỗi ngày (Streak >70%), Sao tích lũy, Sổ Nhãn Dán, Đố Vui, Nhật ký -->
                 <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2.5 sm:gap-3 w-full lg:w-auto shrink-0">
                     <!-- Streak -->
-                    <div class="bg-white px-3.5 py-2 rounded-2xl border-2 border-orange-200 shadow-sm flex items-center gap-2" title="Số ngày liên tiếp con hoàn thành tốt mục tiêu">
-                        <span class="text-2xl sm:text-3xl animate-bounce">🔥</span>
+                    <div onclick="explainStreakRule()" class="cursor-pointer bg-white px-3.5 py-2 rounded-2xl border-2 border-orange-200 shadow-sm flex items-center gap-2 hover:border-orange-400 transition" title="Hoàn thành trên 70% mục tiêu ngày để tăng chuỗi ngày liên tiếp">
+                        <span id="streak-flame-icon" class="text-2xl sm:text-3xl animate-bounce">🔥</span>
                         <div>
-                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Chuỗi Ngày</div>
+                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                <span>Chuỗi Ngày</span>
+                                <span id="streak-today-dot" class="w-2 h-2 rounded-full bg-slate-300" title="Trạng thái đạt chuẩn >70% hôm nay"></span>
+                            </div>
                             <div class="text-lg sm:text-xl font-extrabold text-orange-500"><span id="streak-count">5</span> ngày</div>
                         </div>
                     </div>
 
                     <!-- Ngôi sao -->
-                    <div class="bg-white px-3.5 py-2 rounded-2xl border-2 border-amber-200 shadow-sm flex items-center gap-2" title="Sao dùng để đổi quà cùng Bố Mẹ">
+                    <div id="star-wallet-card" class="bg-white px-3.5 py-2 rounded-2xl border-2 border-amber-200 shadow-sm flex items-center gap-2 transition" title="Sao dùng để đổi quà cùng Bố Mẹ">
                         <span class="text-2xl sm:text-3xl">⭐</span>
                         <div>
                             <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kho Sao</div>
@@ -189,12 +215,16 @@
                         </div>
                     </div>
 
-                    <!-- Nút Bạn Nhỏ & Nhãn Dán, Đồng Hồ Cát, Nhật Ký, Âm thanh & Công cụ của Bố -->
+                    <!-- Nút Bạn Nhỏ & Nhãn Dán, Đố Vui, Đồng Hồ Cát, Nhật Ký, Âm thanh & Công cụ của Bố -->
                     <div class="flex items-center gap-2 flex-wrap justify-center">
-                        <button onclick="openStickerAlbumModal()" class="btn-3d px-3 py-2.5 rounded-2xl bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold text-sm flex items-center gap-1.5 border-2 border-white relative" title="Bạn Thú Cưng & Sổ Nhãn Dán Khen Thưởng của con">
+                        <button onclick="openStickerAlbumModal()" class="btn-3d px-3 py-2.5 rounded-2xl bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold text-sm flex items-center gap-1.5 border-2 border-white relative" title="8 Bạn Thú Cưng & 12 Nhãn Dán Khen Thưởng của con">
                             <span class="text-base" id="header-pet-icon">🐰</span>
                             <span class="hidden sm:inline">Nhãn Dán</span>
-                            <span id="sticker-badge-count" class="bg-pink-500 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0/8</span>
+                            <span id="sticker-badge-count" class="bg-pink-500 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0/12</span>
+                        </button>
+                        <button onclick="openQuizModal()" class="btn-3d px-3 py-2.5 rounded-2xl bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold text-sm flex items-center gap-1.5 border-2 border-white" title="Cú Thông Thái Đố Vui thưởng giọt nước tưới cây">
+                            <span class="text-base">🦉</span>
+                            <span class="hidden sm:inline">Đố Vui</span>
                         </button>
                         <button onclick="openFocusTimerModal()" class="btn-3d px-3 py-2.5 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-sm flex items-center gap-1.5 border-2 border-white" title="Đồng hồ cát giúp con tập trung đọc sách, học bài">
                             <span class="text-base">⏳</span>
@@ -221,7 +251,7 @@
     <!-- MAIN CONTENT: Bố cục 2 cột trực quan cho iPad & Máy tính -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- CỘT TRÁI (7 phần): Danh sách thói quen hằng ngày, Biểu đồ tuần & Đổi quà -->
+        <!-- CỘT TRÁI (7 phần): Danh sách thói quen, Thẻ Nhắc nhở/Phạt, Biểu đồ tuần & Đổi quà -->
         <div class="lg:col-span-7 space-y-6">
 
             <!-- Thẻ Danh Sách Mục Tiêu Hằng Ngày -->
@@ -229,18 +259,31 @@
                 <!-- Góc Tương Tác: Bạn Thú Cưng Khu Vườn & Rương Kho Báu 100% Hằng Ngày -->
                 <div class="mb-5 grid grid-cols-1 md:grid-cols-2 gap-3">
                     <!-- Bạn Đồng Hành Khu Vườn -->
-                    <div onclick="petCompanionTap()" class="cursor-pointer p-3.5 rounded-2xl bg-gradient-to-r from-pink-50 via-rose-50 to-amber-50 border-2 border-pink-200 hover:border-pink-300 transition flex items-center gap-3 shadow-sm select-none group">
-                        <div id="companion-avatar-box" class="w-14 h-14 rounded-2xl bg-white border-2 border-pink-200 flex items-center justify-center text-3xl sm:text-4xl shadow-sm group-hover:scale-110 transition shrink-0">
-                            🐰
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-1">
-                                <span id="companion-name-label" class="text-xs font-extrabold text-pink-600 uppercase tracking-wider">Bạn Thỏ Bông Mây</span>
-                                <span class="text-[10px] font-bold bg-white text-pink-500 px-2 py-0.5 rounded-full border border-pink-200">Chạm vào tớ nhé 💬</span>
+                    <div class="p-3.5 rounded-2xl bg-gradient-to-r from-pink-50 via-rose-50 to-amber-50 border-2 border-pink-200 hover:border-pink-300 transition flex flex-col justify-between gap-2 shadow-sm select-none">
+                        <div onclick="petCompanionTap()" class="cursor-pointer flex items-center gap-3 group">
+                            <div id="companion-avatar-box" class="w-14 h-14 rounded-2xl bg-white border-2 border-pink-200 flex items-center justify-center text-3xl sm:text-4xl shadow-sm group-hover:scale-110 transition shrink-0">
+                                🐰
                             </div>
-                            <p id="companion-speech-text" class="text-xs sm:text-sm font-bold text-slate-700 mt-0.5 leading-snug">
-                                "Chào buổi sáng! Hôm nay mình cùng làm việc tốt và tưới cây nhé!"
-                            </p>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span id="companion-name-label" class="text-xs font-extrabold text-pink-600 uppercase tracking-wider">Bạn Thỏ Bông Mây</span>
+                                    <span id="companion-affection-badge" class="text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full border border-rose-200">❤️ 100%</span>
+                                </div>
+                                <p id="companion-speech-text" class="text-xs sm:text-sm font-bold text-slate-700 mt-0.5 leading-snug">
+                                    "Chào buổi sáng! Hôm nay mình cùng làm việc tốt và tưới cây nhé!"
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-1.5 pt-1.5 border-t border-pink-200/60">
+                            <button onclick="petCompanionTap()" class="flex-1 py-1 px-2 rounded-xl bg-white hover:bg-pink-100 text-pink-600 font-extrabold text-[11px] border border-pink-200 transition">
+                                💬 Trò chuyện
+                            </button>
+                            <button onclick="feedCompanionPet()" class="flex-1 py-1 px-2 rounded-xl bg-white hover:bg-amber-100 text-amber-700 font-extrabold text-[11px] border border-amber-200 transition">
+                                🍓 Cho ăn (<span id="pet-treats-count">2</span>)
+                            </button>
+                            <button onclick="openStickerAlbumModal()" class="py-1 px-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-extrabold text-[11px] transition" title="Đổi bạn thú cưng khác">
+                                🐾 Đổi bạn
+                            </button>
                         </div>
                     </div>
 
@@ -268,7 +311,7 @@
                         <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center gap-2">
                             <span>📝</span> Việc Giỏi Con Làm Hôm Nay
                         </h2>
-                        <p class="text-sm text-slate-500 font-medium">Mỗi việc hoàn thành giúp con nhận <strong class="text-amber-500">⭐ Sao</strong> và <strong class="text-sky-500">💧 Nước thần kỳ</strong> tưới cây!</p>
+                        <p class="text-sm text-slate-500 font-medium">Mỗi việc hoàn thành giúp con nhận <strong class="text-amber-500">⭐ Sao</strong>, <strong class="text-sky-500">💧 Nước</strong> và đạt trên <strong class="text-orange-500">70%</strong> là tính Chuỗi ngày 🔥!</p>
                     </div>
                     <!-- Chỉ hiện nút Thêm Việc Mới khi Bố Mẹ mở khóa -->
                     <button id="add-habit-btn" onclick="handleParentProtectedAction(() => openHabitModal())" class="hidden btn-3d bg-pink-500 hover:bg-pink-600 text-white font-bold px-4 py-2.5 rounded-2xl text-sm items-center justify-center gap-2 shrink-0 shadow-md">
@@ -276,14 +319,21 @@
                     </button>
                 </div>
 
-                <!-- Thanh tiến độ hoàn thành trong ngày -->
+                <!-- Thanh tiến độ hoàn thành trong ngày (Có đánh dấu vạch chuẩn 70% Streak) -->
                 <div class="bg-pink-50/80 rounded-2xl p-3.5 border border-pink-200 mb-4">
-                    <div class="flex items-center justify-between text-xs sm:text-sm font-extrabold mb-1.5">
+                    <div class="flex items-center justify-between text-xs sm:text-sm font-extrabold mb-1.5 flex-wrap gap-1">
                         <span class="text-pink-700" id="daily-progress-text">Đã hoàn thành: 3/6 công việc</span>
-                        <span class="text-pink-600 bg-white px-2.5 py-0.5 rounded-full border border-pink-200" id="daily-progress-percent">50%</span>
+                        <div class="flex items-center gap-1.5">
+                            <span id="daily-streak-status-pill" class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                                Mốc tính Streak: &gt;70%
+                            </span>
+                            <span class="text-pink-600 bg-white px-2.5 py-0.5 rounded-full border border-pink-200" id="daily-progress-percent">50%</span>
+                        </div>
                     </div>
-                    <div class="w-full h-4 bg-white rounded-full overflow-hidden border border-pink-200 p-0.5">
+                    <div class="w-full h-4 bg-white rounded-full overflow-hidden border border-pink-200 p-0.5 relative">
                         <div id="daily-progress-bar" class="h-full bg-gradient-to-r from-pink-400 via-rose-400 to-amber-400 rounded-full transition-all duration-500" style="width: 50%"></div>
+                        <!-- Vạch chuẩn 70% -->
+                        <div class="absolute top-0 bottom-0 left-[70%] w-0.5 bg-orange-500 z-10" title="Mốc >70% đạt Chuỗi ngày"></div>
                     </div>
                 </div>
 
@@ -309,26 +359,77 @@
                 </div>
             </div>
 
-            <!-- Biểu Đồ Chăm Chỉ 7 Ngày Trong Tuần -->
+            <!-- TÍNH NĂNG MỚI V5.2: GÓC NHẮC NHỞ / CẢNH CÁO / PHẠT TRỪ SAO DÀNH CHO BÉ -->
+            <div class="kid-card p-5 sm:p-6 border-rose-200 bg-gradient-to-b from-rose-50/40 to-white">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-rose-700 flex items-center gap-2">
+                            <span>⚠️</span> Thẻ Nhắc Nhở & Điều Chỉnh Hành Vi
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                            Những hành vi con cần tránh. Mỗi lần vi phạm sẽ bị <strong class="text-rose-600">trừ ⭐ Sao tích lũy</strong> (Chỉ Bố Mẹ mới bấm trừ được).
+                        </p>
+                    </div>
+                    <button id="add-penalty-btn" onclick="handleParentProtectedAction(() => openPenaltyModal())" class="hidden btn-3d bg-rose-500 hover:bg-rose-600 text-white font-extrabold px-4 py-2 rounded-2xl text-xs sm:text-sm items-center gap-1.5 shrink-0 shadow-sm">
+                        <i class="fa-solid fa-plus"></i> Thêm Thẻ Phạt
+                    </button>
+                </div>
+
+                <!-- Danh sách Thẻ Nhắc Nhở / Cảnh Cáo / Phạt -->
+                <div id="penalties-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <!-- Render bằng JS -->
+                </div>
+
+                <!-- Lịch sử bị nhắc nhở / trừ sao gần đây -->
+                <div class="pt-3 border-t border-rose-200/70">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">📋 Lịch Sử Nhắc Nhở & Trừ Sao Gần Đây:</span>
+                        <span class="text-[11px] font-bold text-slate-400">Bố Mẹ mở khóa để hoàn tác nếu con đã sửa lỗi</span>
+                    </div>
+                    <div id="penalty-history-container" class="flex flex-wrap gap-2">
+                        <!-- Render bằng JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biểu Đồ Chăm Chỉ 7 Ngày Trong Tuần (Chính xác & Trực quan) -->
             <div class="kid-card p-5 sm:p-6">
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <div>
                         <h2 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-                            <span>📊</span> Biểu Đồ Chăm Chỉ Hằng Tuần
+                            <span>📊</span> Biểu Đồ Chăm Chỉ Hằng Tuần (Thứ 2 - Chủ Nhật)
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-500 font-medium">Đạt từ <strong class="text-emerald-600">70%</strong> mục tiêu mỗi ngày để giữ ngọn lửa chuỗi ngày liên tiếp 🔥</p>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium">Hoàn thành <strong class="text-emerald-600">trên 70%</strong> số công việc mỗi ngày để thắp sáng cột xanh và cộng chuỗi ngày 🔥</p>
                     </div>
                     <div class="bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-2xl text-xs font-extrabold text-orange-700">
                         🏆 Kỷ lục của con: <span id="best-streak-count">5</span> ngày
                     </div>
                 </div>
 
-                <div id="weekly-chart-container" class="grid grid-cols-7 gap-2 sm:gap-3 pt-4 pb-1 px-1 bg-slate-50/70 rounded-2xl border border-slate-200/80">
-                    <!-- Render bằng JS -->
+                <!-- Chú thích màu sắc biểu đồ -->
+                <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-slate-500 mb-2 px-1">
+                    <div class="flex items-center gap-3">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Đạt chuẩn (&gt;70%)</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Đang cố gắng (1-70%)</span>
+                    </div>
+                    <span id="weekly-average-badge" class="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-extrabold">
+                        Trung bình tuần: 0%
+                    </span>
+                </div>
+
+                <div class="relative pt-5 pb-2 px-2 bg-slate-50/80 rounded-2xl border border-slate-200/90">
+                    <!-- Đường chuẩn 70% nằm ngang trên biểu đồ -->
+                    <div class="absolute left-2 right-2 bottom-[106px] border-t-2 border-dashed border-orange-400/75 pointer-events-none z-20 flex justify-end">
+                        <span class="text-[9px] font-extrabold bg-orange-100 text-orange-700 px-1.5 py-0.2 rounded-full -mt-2.5 border border-orange-300 shadow-sm">Mốc &gt;70% 🔥</span>
+                    </div>
+
+                    <div id="weekly-chart-container" class="grid grid-cols-7 gap-1.5 sm:gap-3 relative z-10">
+                        <!-- Render bằng JS -->
+                    </div>
                 </div>
             </div>
 
-            <!-- Góc Đổi Quà Cùng Bố Mẹ -->
+            <!-- Góc Đổi Quà Cùng Bố Mẹ (Đã hỗ trợ Chỉnh sửa Quà & Số sao quy đổi) -->
             <div class="kid-card p-5 sm:p-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                     <div>
@@ -357,7 +458,7 @@
 
         </div>
 
-        <!-- CỘT PHẢI (5 phần): Khu vườn kỳ diệu 5 giai đoạn & Bộ sưu tập cây -->
+        <!-- CỘT PHẢI (5 phần): Khu vườn kỳ diệu 8 giống cây 5 giai đoạn & Bộ sưu tập cây -->
         <div class="lg:col-span-5 space-y-6">
 
             <!-- Khu Vườn Kỳ Diệu -->
@@ -365,7 +466,7 @@
                 <div class="flex items-center justify-between gap-2 mb-3">
                     <div>
                         <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-800 flex items-center gap-2">
-                            <span>🌱</span> Khu Vườn Kỳ Diệu
+                            <span>🌱</span> Khu Vườn Kỳ Diệu (8 Giống Cây)
                         </h2>
                         <p class="text-xs sm:text-sm text-slate-500 font-medium">Hoàn thành việc tốt để tưới nước cho cây lớn qua 5 cấp độ!</p>
                     </div>
@@ -374,23 +475,24 @@
                     </span>
                 </div>
 
-                <!-- Chọn hạt giống cây trồng -->
+                <!-- Chọn 8 hạt giống cây trồng -->
                 <div class="grid grid-cols-4 gap-2 mb-4" id="plant-selector-container">
-                    <!-- Render bằng JS -->
+                    <!-- Render 8 loại cây bằng JS -->
                 </div>
 
                 <!-- Khung cảnh khu vườn & Hình vẽ SVG 5 giai đoạn -->
-                <div class="relative rounded-3xl bg-gradient-to-b from-sky-200/70 via-sky-100/60 to-emerald-100 border-2 border-emerald-200 h-72 flex flex-col items-center justify-end overflow-hidden p-4 shadow-inner">
-                    <!-- Ông mặt trời & Đám mây trang trí -->
-                    <div class="absolute top-3 left-4 text-3xl animate-pulse select-none">☀️</div>
-                    <div class="absolute top-4 right-6 text-2xl opacity-80 select-none">☁️</div>
-                    <div class="absolute top-12 left-1/4 text-xl opacity-60 select-none">🦋</div>
+                <div id="garden-sky-stage" class="relative rounded-3xl bg-gradient-to-b from-sky-200/70 via-sky-100/60 to-emerald-100 border-2 border-emerald-200 h-72 flex flex-col items-center justify-end overflow-hidden p-4 shadow-inner transition-all duration-700">
+                    <!-- Ông mặt trời, Cầu vồng & Sinh vật trang trí -->
+                    <div id="garden-sun-icon" class="absolute top-3 left-4 text-3xl animate-pulse select-none">☀️</div>
+                    <div class="absolute top-3 right-5 text-2xl opacity-85 select-none">🌈</div>
+                    <div class="absolute top-12 left-1/4 text-xl opacity-75 select-none animate-bounce">🦋</div>
+                    <div class="absolute top-14 right-1/4 text-lg opacity-70 select-none">🐝</div>
 
                     <!-- Hiệu ứng giọt nước rơi khi tưới cây -->
                     <div id="water-drops-container" class="absolute inset-0 pointer-events-none flex justify-center"></div>
 
                     <!-- Hình SVG Cây Trồng -->
-                    <div id="garden-svg-container" class="relative z-10 w-48 h-48 flex items-center justify-center plant-float">
+                    <div id="garden-svg-container" class="relative z-10 w-48 h-48 flex items-center justify-center plant-float cursor-pointer" onclick="tapGardenPlant()" title="Chạm vào cây để xem sức sống của cây!">
                         <!-- Render SVG bằng JS -->
                     </div>
 
@@ -414,7 +516,7 @@
                             Cần thêm 2 💧 nữa để cây nở hoa rực rỡ!
                         </p>
                         <button id="harvest-plant-btn" onclick="harvestCurrentPlant()" class="hidden btn-3d bg-gradient-to-r from-amber-400 to-pink-500 hover:from-amber-500 hover:to-pink-600 text-white font-extrabold px-4 py-2 rounded-xl text-xs sm:text-sm items-center gap-1.5 animate-bounce shadow-md">
-                            basket Thu Hoạch (+10 ⭐)
+                            🧺 Thu Hoạch (+10 ⭐)
                         </button>
                     </div>
                 </div>
@@ -443,9 +545,9 @@
 
     </main>
 
-    <!-- ================= CÁC HỘP THOẠI (MODALS) ================= -->
+    <!-- ================= CÁC HỘP THOẠI (MODALS ĐẦY ĐỦ 100%) ================= -->
 
-    <!-- 1. Modal Thêm / Sửa Thói Quen (Chỉ mở được khi qua cổng PIN Bố Mẹ) -->
+    <!-- 1. Modal Thêm / Sửa Thói Quen -->
     <div id="habit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="kid-card max-w-md w-full p-6 bg-white animate-[pop_0.25s_ease-out]">
             <div class="flex justify-between items-center mb-4">
@@ -491,13 +593,14 @@
         </div>
     </div>
 
-    <!-- 2. Modal Thêm Phần Thưởng Đổi Quà -->
+    <!-- 2. Modal Thêm / Chỉnh Sửa Phần Thưởng Đổi Quà (Cập nhật V5.2: Hỗ trợ Sửa Quà & Số Sao Quy Đổi) -->
     <div id="reward-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="kid-card max-w-md w-full p-6 bg-white animate-[pop_0.25s_ease-out]">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-extrabold text-amber-600">🎁 Thêm Món Quà Thưởng Mới</h3>
+                <h3 id="reward-modal-title" class="text-xl font-extrabold text-amber-600">🎁 Thêm Món Quà Thưởng Mới</h3>
                 <button onclick="closeRewardModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
             </div>
+            <input type="hidden" id="edit-reward-id">
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Tên món quà hoặc hoạt động:</label>
@@ -505,8 +608,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Số Sao cần đổi:</label>
-                        <input type="number" id="reward-cost-input" value="15" min="5" max="200" step="5" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-200 font-extrabold text-sm">
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Số Sao cần quy đổi:</label>
+                        <input type="number" id="reward-cost-input" value="15" min="1" max="500" step="1" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-200 font-extrabold text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Biểu tượng quà:</label>
@@ -518,12 +621,63 @@
                             <option value="🎨">🎨 Bộ màu vẽ mới</option>
                             <option value="🍿">🍿 Xem phim hoạt hình</option>
                             <option value="🍰">🍰 Bánh ngọt yêu thích</option>
+                            <option value="🚲">🚲 Đi dạo công viên</option>
+                            <option value="🎁">🎁 Hộp quà bí mật</option>
                         </select>
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button onclick="closeRewardModal()" class="px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 text-sm">Hủy</button>
                     <button onclick="saveReward()" class="btn-3d bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-5 py-2.5 rounded-xl text-sm">Lưu Món Quà</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2B. Modal Thêm / Chỉnh Sửa Thẻ Nhắc Nhở / Cảnh Cáo / Phạt Trừ Sao (MỚI V5.2) -->
+    <div id="penalty-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="kid-card max-w-md w-full p-6 bg-white animate-[pop_0.25s_ease-out] border-rose-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="penalty-modal-title" class="text-xl font-extrabold text-rose-600">⚠️ Tạo Thẻ Nhắc Nhở / Trừ Sao</h3>
+                <button onclick="closePenaltyModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
+            </div>
+            <input type="hidden" id="edit-penalty-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Hành vi cần điều chỉnh / nhắc nhở con:</label>
+                    <input type="text" id="penalty-title-input" placeholder="Ví dụ: Quên cất đồ chơi, ngủ muộn, cáu gắt..." class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-rose-200 focus:border-rose-500 focus:outline-none font-bold text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Mức độ thẻ:</label>
+                        <select id="penalty-level-input" class="w-full px-3 py-2.5 rounded-2xl border-2 border-rose-200 font-bold text-sm bg-white">
+                            <option value="remind">🔔 Nhắc nhở nhẹ</option>
+                            <option value="warning" selected>⚠️ Cảnh cáo</option>
+                            <option value="penalty">🚨 Phạt nghiêm khắc</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Số Sao bị trừ:</label>
+                        <input type="number" id="penalty-points-input" value="2" min="1" max="100" step="1" class="w-full px-3.5 py-2.5 rounded-2xl border-2 border-rose-200 font-extrabold text-sm text-rose-600">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Biểu tượng minh họa:</label>
+                    <select id="penalty-icon-input" class="w-full px-3 py-2.5 rounded-2xl border-2 border-rose-200 font-bold text-sm bg-white">
+                        <option value="🧸">🧸 Đồ chơi bừa bộn</option>
+                        <option value="⏰">⏰ Ngủ muộn / Dậy muộn</option>
+                        <option value="📺">📺 Xem Tivi / iPad quá giờ</option>
+                        <option value="💢">💢 Cáu gắt / Ăn vạ / Bướng bỉnh</option>
+                        <option value="🥣">🥣 Ăn uống ngậm lâu / Bỏ bữa</option>
+                        <option value="🙊">🙊 Nói trống không / Chưa lễ phép</option>
+                        <option value="📚">📚 Quên làm bài / Quên soạn sách vở</option>
+                        <option value="🪥">🪥 Quên đánh răng / Rửa tay</option>
+                        <option value="⚠️">⚠️ Vi phạm quy tắc gia đình</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="closePenaltyModal()" class="px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 text-sm">Hủy</button>
+                    <button onclick="savePenaltyCard()" class="btn-3d bg-rose-500 hover:bg-rose-600 text-white font-extrabold px-5 py-2.5 rounded-xl text-sm">Lưu Thẻ Nhắc Nhở</button>
                 </div>
             </div>
         </div>
@@ -593,7 +747,7 @@
         <div class="kid-card max-w-xl w-full p-6 bg-white animate-[pop_0.25s_ease-out] max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-3">
                 <h3 class="text-xl font-extrabold text-purple-700 flex items-center gap-2">
-                    <span>🛠️</span> Góc Quản Lý & Bảo Vệ Dữ Liệu Của Bố
+                    <span>🛠️</span> Góc Quản Lý & Bảo Vệ Dữ Liệu Của Bố (V5.3)
                 </h3>
                 <button onclick="closeParentToolsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
             </div>
@@ -613,6 +767,34 @@
                         <span class="text-2xl">🌅</span>
                         <span>Chuyển Qua Ngày Mới</span>
                     </button>
+                </div>
+
+                <!-- Tùy chỉnh Giọng đọc Tiếng Việt Chuẩn 100% -->
+                <div class="p-3.5 rounded-2xl bg-sky-50/80 border-2 border-sky-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-extrabold text-sky-900">🗣️ Bộ Máy Giọng Đọc Tiếng Việt (Đã khóa giọng Tiếng Anh):</span>
+                        <button onclick="testVoiceSample()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold">
+                            🔊 Nghe thử giọng
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                        <div class="sm:col-span-2">
+                            <select id="voice-select-dropdown" onchange="updateVoiceSelection(this.value)" class="w-full px-3 py-1.5 rounded-xl border border-sky-300 text-xs font-bold bg-white">
+                                <option value="cloud_google_vi">🌸 Giọng Nữ Google Tiếng Việt Chuẩn (Mọi trình duyệt Web & iPad)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-xl border border-sky-200">
+                            <span class="text-[11px] font-extrabold text-slate-600 shrink-0">Tốc độ:</span>
+                            <select id="voice-rate-select" onchange="updateVoiceRate(this.value)" class="w-full text-xs font-extrabold text-sky-700 bg-transparent focus:outline-none">
+                                <option value="0.9">Chậm ấm (0.9x)</option>
+                                <option value="1.0" selected>Tự nhiên (1.0x)</option>
+                                <option value="1.08">Vui tươi (1.08x)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="voice-engine-status-note" class="text-[11px] font-semibold text-sky-700">
+                        ✅ Đang dùng Giọng Nữ Tiếng Việt Tự Nhiên (Đảm bảo 100% không bao giờ đọc bằng giọng Tiếng Anh).
+                    </div>
                 </div>
 
                 <!-- Khu vực Sao lưu & Khôi phục đa tầng -->
@@ -699,7 +881,7 @@
         </div>
     </div>
 
-    <!-- 6. Modal Nhật Ký Hoạt Động & Lịch Sử Theo Ngày Của Bé (V4.0) -->
+    <!-- 6. Modal Nhật Ký Hoạt Động & Lịch Sử Theo Ngày Của Bé -->
     <div id="activity-log-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="kid-card max-w-xl w-full p-6 bg-white animate-[pop_0.25s_ease-out] max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-2 shrink-0">
@@ -709,7 +891,7 @@
                 <button onclick="closeActivityLogModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
             </div>
             <p class="text-xs sm:text-sm text-slate-500 font-semibold mb-3 shrink-0">
-                Toàn bộ việc tốt con làm mỗi ngày, cây thu hoạch và quà đã đổi đều được lưu trữ lâu dài tại đây!
+                Toàn bộ việc tốt con làm mỗi ngày, cây thu hoạch, nhắc nhở và quà đã đổi đều được lưu trữ lâu dài tại đây!
             </p>
 
             <!-- Thống kê tổng hợp -->
@@ -793,7 +975,7 @@
                 🔐
             </div>
             <h3 class="text-lg font-extrabold text-slate-800">Khu Vực Của Bố Mẹ</h3>
-            <p class="text-xs text-slate-500 font-medium mt-1 mb-4">Chỉ Bố Mẹ mới có thể Thêm/Sửa/Xóa nhiệm vụ và quà tặng. Vui lòng nhập mật mã 4 số:</p>
+            <p class="text-xs text-slate-500 font-medium mt-1 mb-4">Chỉ Bố Mẹ mới có thể Thêm/Sửa/Xóa hoặc Trừ sao nhắc nhở. Vui lòng nhập mật mã 4 số:</p>
             <input type="password" id="parent-pin-input" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter') verifyParentPin()" placeholder="••••" class="w-36 text-center text-2xl tracking-[0.5em] font-extrabold px-3 py-2 rounded-2xl border-2 border-purple-200 focus:border-purple-500 focus:outline-none mb-3">
             
             <!-- Phép tính dự phòng cho Phụ huynh nếu quên PIN -->
@@ -812,12 +994,11 @@
         </div>
     </div>
 
-    <!-- 9. Modal Sổ Nhãn Dán Khen Thưởng & Chọn Bạn Thú Cưng (V4.0) -->
+    <!-- 9. Modal Sổ Nhãn Dán Khen Thưởng & Chọn 8 Bạn Thú Cưng -->
     <div id="sticker-album-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="kid-card max-w-xl w-full p-6 bg-gradient-to-b from-pink-50 to-white animate-[pop_0.25s_ease-out] max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-xl font-extrabold text-pink-600 flex items-center gap-2">
-                    <span>🏅</span> Bạn Nhỏ Đồng Hành & Sổ Nhãn Dán Của Con
+            <div class="flex justify-between items-center mb-3">                <h3 class="text-xl font-extrabold text-pink-600 flex items-center gap-2">
+                    <span>🏅</span> 8 Bạn Nhỏ Đồng Hành & 12 Nhãn Dán Của Con
                 </h3>
                 <button onclick="closeStickerAlbumModal()" class="w-8 h-8 rounded-full bg-white hover:bg-slate-100 flex items-center justify-center text-slate-500 font-bold shadow-sm">✕</button>
             </div>
@@ -826,25 +1007,54 @@
             <div class="p-4 rounded-2xl bg-white border-2 border-pink-200 mb-4 shadow-sm">
                 <div class="text-xs sm:text-sm font-extrabold text-slate-700 mb-2">🐾 Chọn Bạn Thú Cưng Trông Coi Khu Vườn Cùng Con:</div>
                 <div id="pet-selection-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <!-- Render bằng JS -->
+                    <!-- Render 8 bạn thú cưng bằng JS -->
                 </div>
             </div>
 
             <!-- Bộ Sưu Tập Huy Hiệu / Nhãn Dán -->
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs sm:text-sm font-extrabold text-slate-700">✨ Bộ Sưu Tập Nhãn Dán Danh Hiệu:</span>
-                    <span id="modal-sticker-progress" class="text-xs font-extrabold bg-pink-100 text-pink-700 px-2.5 py-0.5 rounded-full">Đã mở: 0/8</span>
+                    <span class="text-xs sm:text-sm font-extrabold text-slate-700">✨ Bộ Sưu Tập 12 Nhãn Dán Danh Hiệu:</span>
+                    <span id="modal-sticker-progress" class="text-xs font-extrabold bg-pink-100 text-pink-700 px-2.5 py-0.5 rounded-full">Đã mở: 0/12</span>
                 </div>
-                <p class="text-xs text-slate-500 font-medium mb-3">Khi con chăm chỉ làm việc tốt, tưới cây và giữ chuỗi ngày, các nhãn dán lấp lánh sẽ tự động mở khóa!</p>
+                <p class="text-xs text-slate-500 font-medium mb-3">Khi con chăm chỉ làm việc tốt, tưới cây, giải đố vui và giữ chuỗi ngày, các nhãn dán lấp lánh sẽ tự động mở khóa!</p>
                 <div id="stickers-grid-container" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    <!-- Render bằng JS -->
+                    <!-- Render 12 nhãn dán bằng JS -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================= JAVASCRIPT LOGIC HOÀN CHỈNH ================= -->
+    <!-- 10. Modal Cú Thông Thái Đố Vui -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="kid-card max-w-md w-full p-6 bg-gradient-to-b from-indigo-50 to-white text-center animate-[pop_0.25s_ease-out]">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-xl font-extrabold text-indigo-700 flex items-center gap-2">
+                    <span>🦉</span> Cú Thông Thái Đố Vui
+                </h3>
+                <button onclick="closeQuizModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
+            </div>
+            <p class="text-xs text-slate-500 font-semibold mb-3">
+                Trả lời đúng để nhận <strong class="text-sky-600">+1 💧 Nước thần kỳ</strong> và <strong class="text-pink-600">+1 🍓 Dâu cho thú cưng</strong>! (Tối đa 3 lần thưởng/ngày)
+            </p>
+            <div class="p-4 rounded-2xl bg-white border-2 border-indigo-200 mb-3 text-left shadow-sm">
+                <div class="flex items-center justify-between mb-1">
+                    <span id="quiz-cat-badge" class="text-[10px] font-extrabold uppercase bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-full">Toán Vui</span>
+                    <button onclick="speakCurrentQuiz()" class="text-xs font-extrabold text-sky-600 hover:text-sky-800 flex items-center gap-1">🔊 Đọc câu hỏi</button>
+                </div>
+                <div id="quiz-question-box" class="text-base font-extrabold text-slate-800 mt-1">8 + 7 bằng bao nhiêu?</div>
+            </div>
+            <div id="quiz-options-container" class="grid grid-cols-2 gap-2.5 mb-3">
+                <!-- Render đáp án -->
+            </div>
+            <div class="flex items-center justify-between text-xs font-bold text-slate-500 pt-1">
+                <span id="quiz-quota-text">Hôm nay đã nhận: 0/3 phần thưởng</span>
+                <button onclick="loadNextQuiz()" class="text-indigo-600 underline font-extrabold">Câu đố khác 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC HOÀN CHỈNH (V5.2 - 2026-10-24) ================= -->
     <script>
         const STORAGE_KEY = 'KHU_VUON_CUA_CON_V1';
         const MIRROR_STORAGE_KEY = 'KHU_VUON_CUA_CON_MIRROR_BACKUP_V4';
@@ -856,34 +1066,14 @@
         const AVATAR_EMOJIS = ['👧🏻', '👸🏻', '🧚🏻‍♀️', '🐰', '🦄', '🐱', '🍓', '🌸', '🦊', '🐼', '🦋', '🌟'];
 
         const PLANT_TYPES = {
-            strawberry: {
-                id: 'strawberry',
-                name: 'Cây Dâu Tây Ngọt Ngào',
-                shortName: 'Dâu Tây',
-                icon: '🍓',
-                color: '#f43f5e'
-            },
-            sunflower: {
-                id: 'sunflower',
-                name: 'Hoa Hướng Dương Rực Rỡ',
-                shortName: 'Hướng Dương',
-                icon: '🌻',
-                color: '#f59e0b'
-            },
-            apple: {
-                id: 'apple',
-                name: 'Cây Táo Vàng Cổ Tích',
-                shortName: 'Táo Vàng',
-                icon: '🍎',
-                color: '#ef4444'
-            },
-            sakura: {
-                id: 'sakura',
-                name: 'Cây Anh Đào Sakura',
-                shortName: 'Anh Đào',
-                icon: '🌸',
-                color: '#ec4899'
-            }
+            strawberry: { id: 'strawberry', name: 'Cây Dâu Tây Ngọt Ngào', shortName: 'Dâu Tây', icon: '🍓', color: '#f43f5e' },
+            sunflower: { id: 'sunflower', name: 'Hoa Hướng Dương Rực Rỡ', shortName: 'Hướng Dương', icon: '🌻', color: '#f59e0b' },
+            apple: { id: 'apple', name: 'Cây Táo Vàng Cổ Tích', shortName: 'Táo Vàng', icon: '🍎', color: '#ef4444' },
+            sakura: { id: 'sakura', name: 'Cây Anh Đào Sakura', shortName: 'Anh Đào', icon: '🌸', color: '#ec4899' },
+            watermelon: { id: 'watermelon', name: 'Dưa Hấu Mát Lạnh', shortName: 'Dưa Hấu', icon: '🍉', color: '#10b981' },
+            orange: { id: 'orange', name: 'Cây Cam Vàng Mọng Nước', shortName: 'Cam Vàng', icon: '🍊', color: '#f97316' },
+            lotus: { id: 'lotus', name: 'Hoa Sen Hồng Tinh Khiết', shortName: 'Sen Hồng', icon: '🪷', color: '#db2777' },
+            rainbow_rose: { id: 'rainbow_rose', name: 'Hoa Hồng Cầu Vồng', shortName: 'Hoa Hồng', icon: '🌹', color: '#8b5cf6' }
         };
 
         const GARDEN_PETS = {
@@ -891,7 +1081,7 @@
                 'Chào công chúa nhỏ! Hôm nay mình cùng tưới cho cây mau lớn nhé!',
                 'Con làm việc tốt giỏi quá! Đôi tai dài của tớ đang nhảy múa vì vui đấy!',
                 'Nhớ uống đủ nước và đọc sách mỗi ngày cùng Thỏ Bông nhé!',
-                'Mỗi ngôi sao con kiếm được đều làm khu vườn tỏa sáng lấp lánh!'
+                'Hoàn thành trên 70% công việc là ngọn lửa chuỗi ngày sẽ rực sáng ngay!'
             ]},
             kitten: { id: 'kitten', name: 'Mèo Dâu Tây', icon: '🐱', quotes: [
                 'Meow~ Hôm nay con đã hoàn thành được mấy việc giỏi rồi nè?',
@@ -910,6 +1100,30 @@
                 'Làm xong bài tập rồi mình cùng ngắm hoa trong vườn nhé!',
                 'Con giỏi lắm! Bố chắc chắn rất tự hào về con!',
                 'Hoàn thành hết mục tiêu để mở Rương Kho Báu hôm nay thôi nào!'
+            ]},
+            panda: { id: 'panda', name: 'Gấu Trúc Trúc Xanh', icon: '🐼', quotes: [
+                'Măm măm! Gấu Trúc rất thích những em bé ăn sáng hết suất và đúng giờ!',
+                'Kiên trì từng việc nhỏ mỗi ngày sẽ tạo nên khu vườn kỳ diệu đấy con!',
+                'Ngồi thẳng lưng khi học bài và đọc sách cùng Gấu Trúc nhé!',
+                'Con làm tốt lắm! Hôm nay khu vườn tràn ngập niềm vui!'
+            ]},
+            dragon: { id: 'dragon', name: 'Rồng Nhỏ Lửa Ấm', icon: '🐲', quotes: [
+                'Khè khè~ Ngọn lửa ấm áp của Rồng Nhỏ giúp thắp sáng chuỗi ngày chăm chỉ!',
+                'Chỉ cần vượt qua mốc 70% công việc là chuỗi ngày của con được tính ngay!',
+                'Dũng cảm và tự giác! Con chính là niềm tự hào của Bố Mẹ!',
+                'Cùng Rồng Nhỏ chinh phục hết các mục tiêu hôm nay nào!'
+            ]},
+            fox: { id: 'fox', name: 'Cáo Cam Thông Thái', icon: '🦊', quotes: [
+                'Con có muốn thử sức với Cú Thông Thái Đố Vui để nhận thêm nước tưới cây không?',
+                'Nhanh nhẹn, gọn gàng và lễ phép là bí quyết của Cáo Cam đấy!',
+                'Mỗi trang sách con đọc hôm nay đều mở ra một thế giới diệu kỳ!',
+                'Hoan hô! Con vừa thông minh lại vừa chăm làm việc nhà!'
+            ]},
+            penguin: { id: 'penguin', name: 'Cánh Cụt Mát Lạnh', icon: '🐧', quotes: [
+                'Lạch bạch lạch bạch~ Cánh Cụt mang làn gió mát lành đến khu vườn của con!',
+                'Đánh răng sạch bóng sáng và tối để nụ cười luôn tỏa nắng nhé!',
+                'Đi ngủ đúng giờ giúp con cao lớn và thông minh hơn mỗi ngày!',
+                'Yêu con nhiều lắm! Mình cùng chăm sóc cây tiếp thôi!'
             ]}
         };
 
@@ -921,7 +1135,22 @@
             { id: 's_streak_7', title: 'Ngôi Sao Tuần Lễ', icon: '👑', desc: 'Đạt chuỗi 7 ngày liên tiếp', check: (st) => Math.max(st.streak || 0, st.bestStreak || 0) >= 7 },
             { id: 's_plant_1', title: 'Nghệ Nhân Trồng Cây', icon: '🌸', desc: 'Thu hoạch ít nhất 1 cây trưởng thành', check: (st) => (st.harvestedPlants || []).length >= 1 },
             { id: 's_plant_3', title: 'Chủ Nhân Khu Vườn', icon: '🏡', desc: 'Thu hoạch 3 cây vào Bộ sưu tập', check: (st) => (st.harvestedPlants || []).length >= 3 },
-            { id: 's_stars_50', title: 'Kho Báu Lấp Lánh', icon: '💎', desc: 'Tích lũy đạt mốc 50 Sao hoặc hoàn thành hết việc trong ngày', check: (st) => (st.stars || 0) >= 50 || (st.habits && st.habits.length > 0 && st.habits.every(h => h.completed)) }
+            { id: 's_stars_50', title: 'Kho Báu Lấp Lánh', icon: '💎', desc: 'Tích lũy đạt mốc 50 Sao hoặc hoàn thành hết việc trong ngày', check: (st) => (st.stars || 0) >= 50 || (st.habits && st.habits.length > 0 && st.habits.every(h => h.completed)) },
+            { id: 's_focus_3', title: 'Kiện Tướng Tập Trung', icon: '⏳', desc: 'Hoàn thành 3 phiên Đồng Hồ Cát', check: (st) => (st.focusSessionsCompleted || 0) >= 3 },
+            { id: 's_quiz_5', title: 'Nhà Thông Thái Nhí', icon: '🦉', desc: 'Giải đúng 5 câu đố của Cú Thông Thái', check: (st) => (st.quizzesSolved || 0) >= 5 },
+            { id: 's_plant_5', title: 'Đại Điền Chủ Nhí', icon: '🌳', desc: 'Thu hoạch 5 cây trưởng thành', check: (st) => (st.harvestedPlants || []).length >= 5 },
+            { id: 's_pet_love', title: 'Trái Tim Ấm Áp', icon: '💖', desc: 'Cho thú cưng ăn đạt 100% độ thân thiết', check: (st) => (st.petAffection || 90) >= 100 }
+        ];
+
+        const QUIZ_QUESTIONS = [
+            { cat: 'Toán Học Vui ➕', q: '8 cộng 7 bằng bao nhiêu nhỉ?', opts: ['14', '15', '16', '13'], ans: '15' },
+            { cat: 'Toán Học Vui ➖', q: '16 trừ 9 bằng bao nhiêu?', opts: ['6', '7', '8', '9'], ans: '7' },
+            { cat: 'Toán Học Vui ➕', q: '25 cộng 15 bằng bao nhiêu?', opts: ['35', '40', '45', '30'], ans: '40' },
+            { cat: 'Tiếng Việt Đáng Yêu 📖', q: 'Từ nào viết đúng chính tả?', opts: ['Chăm trỉ', 'Chăm chỉ', 'Trăm chỉ', 'Chăm chỷ'], ans: 'Chăm chỉ' },
+            { cat: 'Tự Nhiên & Bầu Trời 🌱', q: 'Cây xanh cần gì để lớn lên và nở hoa?', opts: ['Kẹo ngọt', 'Nước và ánh sáng mặt trời', 'Đồ chơi', 'Bánh kem'], ans: 'Nước và ánh sáng mặt trời' },
+            { cat: 'Thói Quen Tốt 🌟', q: 'Khi được người lớn tặng quà, con nên nói gì?', opts: ['Im lặng', 'Con xin và cảm ơn ạ!', 'Con không thích', 'Đưa đây'], ans: 'Con xin và cảm ơn ạ!' },
+            { cat: 'Toán Có Lời Văn 🍎', q: 'Bông có 12 quả dâu, Bố thưởng thêm 5 quả. Hỏi Bông có tất cả mấy quả dâu?', opts: ['15 quả', '17 quả', '18 quả', '16 quả'], ans: '17 quả' },
+            { cat: 'Đo Lường & Thời Gian ⏰', q: 'Một tuần lễ có tất cả bao nhiêu ngày?', opts: ['5 ngày', '6 ngày', '7 ngày', '8 ngày'], ans: '7 ngày' }
         ];
 
         function getTodayDateString() {
@@ -933,8 +1162,19 @@
         }
 
         function getTodayMondayBasedIndex() {
-            const day = new Date().getDay(); // 0 = CN, 1 = T2 ...
+            const day = new Date().getDay();
             return day === 0 ? 6 : day - 1;
+        }
+
+        function getMondayDateStringOfCurrentWeek() {
+            const now = new Date();
+            const dayIdx = getTodayMondayBasedIndex();
+            const mon = new Date(now);
+            mon.setDate(now.getDate() - dayIdx);
+            const y = mon.getFullYear();
+            const m = String(mon.getMonth() + 1).padStart(2, '0');
+            const d = String(mon.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
         function getDefaultState() {
@@ -946,10 +1186,17 @@
                 dadMessage: 'Chúc con gái yêu của Bố một ngày học vui, cười thật tươi và trồng được cây thật đẹp nhé! Bố yêu con nhiều!',
                 parentPin: '1234',
                 soundEnabled: true,
+                voiceName: 'cloud_google_vi',
+                voiceRate: 1.0,
                 streak: 5,
                 bestStreak: 5,
+                lastStreakCreditedDate: '',
+                streakLockedDate: '',
+                habitRewardLedger: {},
+                plantGeneration: 0,
                 stars: 28,
                 lastActiveDate: getTodayDateString(),
+                weekMondayDate: getMondayDateStringOfCurrentWeek(),
                 currentPlant: {
                     type: 'strawberry',
                     exp: 6
@@ -966,14 +1213,21 @@
                     { id: 'h5', title: 'Tập viết chữ đẹp & chuẩn bị sách vở cho ngày mai', category: 'evening', stars: 3, icon: '🎒', completed: false },
                     { id: 'h6', title: 'Đánh răng buổi tối & đi ngủ đúng giờ (trước 21h30)', category: 'evening', stars: 2, icon: '🛏️', completed: false }
                 ],
+                penalties: [
+                    { id: 'p1', title: 'Chưa xếp gọn đồ chơi / sách vở sau khi dùng', points: 2, icon: '🧸', level: 'remind' },
+                    { id: 'p2', title: 'Đi ngủ muộn hoặc dậy muộn phải gọi nhiều lần', points: 2, icon: '⏰', level: 'warning' },
+                    { id: 'p3', title: 'Xem Tivi / iPad quá thời gian quy định', points: 3, icon: '📺', level: 'penalty' },
+                    { id: 'p4', title: 'Cáu gắt, ăn vạ hoặc chưa lễ phép với người lớn', points: 3, icon: '💢', level: 'penalty' }
+                ],
+                penaltyHistory: [],
                 weeklyHistory: [
-                    { day: 'T2', percent: 100, stars: 14 },
-                    { day: 'T3', percent: 85, stars: 12 },
-                    { day: 'T4', percent: 100, stars: 14 },
-                    { day: 'T5', percent: 75, stars: 10 },
-                    { day: 'T6', percent: 100, stars: 14 },
-                    { day: 'T7', percent: 50, stars: 6 },
-                    { day: 'CN', percent: 0, stars: 0 }
+                    { day: 'T2', percent: 100, stars: 14, done: 6, total: 6 },
+                    { day: 'T3', percent: 85, stars: 12, done: 5, total: 6 },
+                    { day: 'T4', percent: 100, stars: 14, done: 6, total: 6 },
+                    { day: 'T5', percent: 75, stars: 10, done: 5, total: 6 },
+                    { day: 'T6', percent: 100, stars: 14, done: 6, total: 6 },
+                    { day: 'T7', percent: 50, stars: 6, done: 3, total: 6 },
+                    { day: 'CN', percent: 0, stars: 0, done: 0, total: 6 }
                 ],
                 rewards: [
                     { id: 'r1', title: 'Đọc thêm 1 truyện cổ tích trước khi ngủ cùng Bố', cost: 10, icon: '📖' },
@@ -986,7 +1240,12 @@
                 ],
                 totalTasksCompleted: 18,
                 focusSessionsCompleted: 1,
+                quizzesSolved: 0,
+                quizRewardDate: '',
+                quizRewardCountToday: 0,
                 selectedPet: 'bunny',
+                petAffection: 90,
+                petTreats: 2,
                 lastChestClaimedDate: '',
                 dailyArchives: [
                     { date: '15/10', done: 6, total: 6, pct: 100, starsEarned: 14 },
@@ -1001,42 +1260,212 @@
             };
         }
 
+        function normalizeState(parsed) {
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                throw new Error('Dữ liệu trạng thái không hợp lệ');
+            }
+            const def = getDefaultState();
+            const merged = { ...def, ...parsed };
+            const arrayDefaults = {
+                habits: def.habits,
+                penalties: def.penalties,
+                penaltyHistory: [],
+                weeklyHistory: def.weeklyHistory,
+                rewards: def.rewards,
+                redeemedHistory: [],
+                harvestedPlants: [],
+                dailyArchives: [],
+                activityLogs: []
+            };
+            for (const [key, fallback] of Object.entries(arrayDefaults)) {
+                if (!Array.isArray(merged[key])) merged[key] = fallback.slice();
+            }
+            if (merged.weeklyHistory.length !== 7) merged.weeklyHistory = def.weeklyHistory;
+            if (!merged.currentPlant || typeof merged.currentPlant !== 'object' || Array.isArray(merged.currentPlant)) {
+                merged.currentPlant = { ...def.currentPlant };
+            } else {
+                merged.currentPlant = { ...def.currentPlant, ...merged.currentPlant };
+            }
+            if (!merged.currentPlant.type || !Number.isFinite(Number(merged.currentPlant.exp))) {
+                merged.currentPlant = { ...def.currentPlant };
+            }
+            merged.currentPlant.exp = Math.max(0, Math.min(12, Math.floor(Number(merged.currentPlant.exp) || 0)));
+
+            for (const key of ['stars', 'streak', 'bestStreak', 'totalTasksCompleted', 'focusSessionsCompleted', 'quizzesSolved', 'quizRewardCountToday', 'petAffection', 'petTreats', 'plantGeneration']) {
+                const fallback = Number(def[key] ?? 0);
+                const value = Number(merged[key]);
+                merged[key] = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : fallback;
+            }
+            merged.streakLockedDate = typeof merged.streakLockedDate === 'string' ? merged.streakLockedDate : '';
+            merged.lastStreakCreditedDate = typeof merged.lastStreakCreditedDate === 'string' ? merged.lastStreakCreditedDate : '';
+            merged.lastActiveDate = typeof merged.lastActiveDate === 'string' ? merged.lastActiveDate : getTodayDateString();
+            merged._meta = parsed._meta && typeof parsed._meta === 'object' && !Array.isArray(parsed._meta)
+                ? {
+                    revision: Math.max(0, Math.floor(Number(parsed._meta.revision) || 0)),
+                    updatedAt: typeof parsed._meta.updatedAt === 'string' ? parsed._meta.updatedAt : '',
+                    formatVersion: 2
+                }
+                : { revision: 0, updatedAt: '', formatVersion: 2 };
+
+            // Migrate pet treats into an inventory so a task reward can be reversed only
+            // while the exact treat is still available (not after it has been consumed).
+            if (!Array.isArray(parsed.petTreatInventory)) {
+                merged.petTreatInventory = Array.from({ length: merged.petTreats }, (_, i) => ({
+                    id: `legacy_treat_${i + 1}`,
+                    source: 'legacy',
+                    status: 'available'
+                }));
+            } else {
+                merged.petTreatInventory = parsed.petTreatInventory
+                    .filter(t => t && typeof t === 'object' && t.status !== 'consumed')
+                    .map((t, i) => ({
+                        id: String(t.id || `treat_${i}_${Date.now()}`),
+                        source: String(t.source || 'legacy'),
+                        status: 'available'
+                    }));
+            }
+            merged.petTreats = merged.petTreatInventory.length;
+
+            // Per-calendar-day reward ledger: a habit can pay its reward only once per day.
+            if (!merged.habitRewardLedger || typeof merged.habitRewardLedger !== 'object' || Array.isArray(merged.habitRewardLedger)) {
+                merged.habitRewardLedger = {};
+            }
+            for (const [date, ledger] of Object.entries(merged.habitRewardLedger)) {
+                if (!ledger || typeof ledger !== 'object' || Array.isArray(ledger)) merged.habitRewardLedger[date] = {};
+            }
+            const today = getTodayDateString();
+            if (!merged.habitRewardLedger[today]) merged.habitRewardLedger[today] = {};
+            const todayLedger = merged.habitRewardLedger[today];
+            // Existing completed habits predate the ledger; treat them as already rewarded
+            // to avoid granting a second reward during migration.
+            merged.habits.forEach(h => {
+                if (h && h.completed && h.id != null && !todayLedger[String(h.id)]) {
+                    todayLedger[String(h.id)] = {
+                        legacy: true,
+                        stars: 0,
+                        treatTokenId: null,
+                        waterApplied: false,
+                        plantGeneration: merged.plantGeneration
+                    };
+                }
+            });
+            // Keep a bounded ledger history while retaining the current date.
+            const ledgerDates = Object.keys(merged.habitRewardLedger).sort();
+            for (const oldDate of ledgerDates.slice(0, Math.max(0, ledgerDates.length - 45))) {
+                if (oldDate !== today) delete merged.habitRewardLedger[oldDate];
+            }
+            return merged;
+        }
+
         function loadState() {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(MIRROR_STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    return { ...getDefaultState(), ...parsed };
-                }
+                const rawMain = localStorage.getItem(STORAGE_KEY);
+                const rawMirror = localStorage.getItem(MIRROR_STORAGE_KEY);
+                const raw = rawMain || rawMirror;
+                if (raw) return normalizeState(JSON.parse(raw));
             } catch (e) {
                 console.warn('Không thể đọc dữ liệu từ LocalStorage, dùng mặc định:', e);
             }
-            return getDefaultState();
+            return normalizeState(getDefaultState());
+        }
+
+        function compareStateVersions(a, b) {
+            const ar = Math.max(0, Number(a?._meta?.revision) || 0);
+            const br = Math.max(0, Number(b?._meta?.revision) || 0);
+            if (ar !== br) return ar - br;
+            const at = Date.parse(a?._meta?.updatedAt || '') || 0;
+            const bt = Date.parse(b?._meta?.updatedAt || '') || 0;
+            return at - bt;
         }
 
         function saveState() {
             try {
+                if (!state._meta || typeof state._meta !== 'object') state._meta = { revision: 0, updatedAt: '', formatVersion: 2 };
+                state._meta.revision = Math.max(0, Number(state._meta.revision) || 0) + 1;
+                state._meta.updatedAt = new Date().toISOString();
+                state._meta.formatVersion = 2;
                 const serialized = JSON.stringify(state);
-                localStorage.setItem(STORAGE_KEY, serialized);
-                localStorage.setItem(MIRROR_STORAGE_KEY, serialized);
+                // Each storage layer is attempted independently: one quota/storage error
+                // must not prevent attempts to write the remaining recovery layers.
+                try { localStorage.setItem(STORAGE_KEY, serialized); } catch (e) { console.warn('Không thể lưu bản chính:', e); }
+                try { localStorage.setItem(MIRROR_STORAGE_KEY, serialized); } catch (e) { console.warn('Không thể lưu bản dự phòng LocalStorage:', e); }
                 writeToIndexedDB('latestState', state);
             } catch (e) {
-                console.warn('Không thể lưu dữ liệu:', e);
+                console.warn('Không thể tạo bản lưu dữ liệu:', e);
             }
+        }
+
+        function replaceStateData(nextState) {
+            const currentRevision = Math.max(0, Number(state?._meta?.revision) || 0);
+            const restored = normalizeState(nextState);
+            restored._meta = {
+                revision: Math.max(currentRevision, Number(restored._meta?.revision) || 0) + 1,
+                updatedAt: new Date().toISOString(),
+                formatVersion: 2
+            };
+            state = restored;
+        }
+
+        function ensurePetTreatInventory() {
+            if (!Array.isArray(state.petTreatInventory)) {
+                const count = Math.max(0, Math.floor(Number(state.petTreats) || 0));
+                state.petTreatInventory = Array.from({ length: count }, (_, i) => ({
+                    id: `legacy_treat_${Date.now()}_${i}`,
+                    source: 'legacy',
+                    status: 'available'
+                }));
+            }
+            state.petTreatInventory = state.petTreatInventory.filter(t => t && t.status !== 'consumed');
+            state.petTreats = state.petTreatInventory.length;
+            return state.petTreatInventory;
+        }
+
+        function ensureTodayHabitRewardLedger() {
+            if (!state.habitRewardLedger || typeof state.habitRewardLedger !== 'object' || Array.isArray(state.habitRewardLedger)) {
+                state.habitRewardLedger = {};
+            }
+            const today = getTodayDateString();
+            if (!state.habitRewardLedger[today] || typeof state.habitRewardLedger[today] !== 'object' || Array.isArray(state.habitRewardLedger[today])) {
+                state.habitRewardLedger[today] = {};
+            }
+            const ledger = state.habitRewardLedger[today];
+            state.habits.forEach(h => {
+                if (h && h.completed && h.id != null && !ledger[String(h.id)]) {
+                    ledger[String(h.id)] = {
+                        legacy: true,
+                        stars: 0,
+                        treatTokenId: null,
+                        waterApplied: false,
+                        plantGeneration: Number(state.plantGeneration) || 0
+                    };
+                }
+            });
+            return ledger;
+        }
+
+        function createPetTreatToken(source) {
+            const inventory = ensurePetTreatInventory();
+            const token = {
+                id: `treat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+                source,
+                status: 'available'
+            };
+            inventory.push(token);
+            state.petTreats = inventory.length;
+            return token;
         }
 
         let state = loadState();
         let currentHabitFilter = 'all';
         let selectedEmojiForModal = '🪥';
         let selectedAvatarForModal = '👧🏻';
-        // Mặc định luôn khóa ở Chế độ của Bé (ẩn toàn bộ nút Thêm/Sửa/Xóa)
         let isParentMode = false;
         let parentModeTimeout = null;
         let parentModeCountdownInterval = null;
         let parentModeRemainingSeconds = 0;
         let currentMathAnswer = 83;
+        let currentQuizObj = null;
 
-        // Đồng hồ cát tập trung
         let focusTimerInterval = null;
         let focusTotalSeconds = 15 * 60;
         let focusRemainingSeconds = 15 * 60;
@@ -1045,28 +1474,67 @@
         // ================= BẢO VỆ DỮ LIỆU ĐA TẦNG (LOCALSTORAGE + MIRROR + INDEXEDDB) =================
         async function initPersistentVault() {
             try {
-                if (navigator.storage && navigator.storage.persist) {
-                    await navigator.storage.persist();
-                }
+                if (navigator.storage && navigator.storage.persist) await navigator.storage.persist();
             } catch (e) {}
 
+            const candidates = [];
             try {
                 const rawMain = localStorage.getItem(STORAGE_KEY);
-                const rawMirror = localStorage.getItem(MIRROR_STORAGE_KEY);
-                if (!rawMain && rawMirror) {
-                    localStorage.setItem(STORAGE_KEY, rawMirror);
-                    state = { ...getDefaultState(), ...JSON.parse(rawMirror) };
-                    renderAll();
-                }
-                const idbData = await readFromIndexedDB('latestState');
-                if (idbData && (!rawMain || ((idbData.totalTasksCompleted || 0) > (state.totalTasksCompleted || 0)))) {
-                    state = { ...getDefaultState(), ...idbData };
-                    saveState();
-                    renderAll();
-                } else {
-                    await writeToIndexedDB('latestState', state);
-                }
+                if (rawMain) candidates.push({ source: 'main', priority: 3, data: JSON.parse(rawMain) });
             } catch (e) {}
+            try {
+                const rawMirror = localStorage.getItem(MIRROR_STORAGE_KEY);
+                if (rawMirror) candidates.push({ source: 'mirror', priority: 2, data: JSON.parse(rawMirror) });
+            } catch (e) {}
+            try {
+                const idbData = await readFromIndexedDB('latestState');
+                if (idbData && typeof idbData === 'object') candidates.push({ source: 'indexedDB', priority: 1, data: idbData });
+            } catch (e) {}
+
+            if (candidates.length) {
+                candidates.sort((a, b) => {
+                    const versionDiff = compareStateVersions(a.data, b.data);
+                    return versionDiff !== 0 ? versionDiff : a.priority - b.priority;
+                });
+                const chosen = candidates[candidates.length - 1];
+                try {
+                    state = normalizeState(chosen.data);
+                } catch (e) {
+                    state = normalizeState(getDefaultState());
+                }
+            } else {
+                state = normalizeState(getDefaultState());
+            }
+
+            // Recover safety snapshots from IndexedDB if LocalStorage is missing/corrupt,
+            // and merge both stores by snapshot ID instead of ignoring the IndexedDB copy.
+            let localSnapshots = [];
+            try {
+                const raw = localStorage.getItem(SNAPSHOTS_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                if (Array.isArray(parsed)) localSnapshots = parsed;
+            } catch (e) {}
+            let idbSnapshots = [];
+            try {
+                const value = await readFromIndexedDB('safetySnapshots');
+                if (Array.isArray(value)) idbSnapshots = value;
+            } catch (e) {}
+            const byId = new Map();
+            [...localSnapshots, ...idbSnapshots].forEach(snap => {
+                if (snap && snap.id && snap.data) byId.set(String(snap.id), snap);
+            });
+            const snapshots = [...byId.values()].sort((a, b) => {
+                const at = Date.parse(a.createdAt || '') || Number(String(a.id || '').replace(/\D/g, '')) || 0;
+                const bt = Date.parse(b.createdAt || '') || Number(String(b.id || '').replace(/\D/g, '')) || 0;
+                return bt - at;
+            }).slice(0, 12);
+            try { localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(snapshots)); } catch (e) {}
+            if (snapshots.length) await writeToIndexedDB('safetySnapshots', snapshots);
+
+            // Synchronize both browser stores from the newest valid version.
+            saveState();
+            await writeToIndexedDB('latestState', state);
+            if (typeof renderSnapshotsList === 'function') renderSnapshotsList();
         }
 
         function openVaultDB() {
@@ -1085,11 +1553,39 @@
         }
 
         async function writeToIndexedDB(key, val) {
+            let db = null;
             try {
-                const db = await openVaultDB();
-                const tx = db.transaction(IDB_STORE, 'readwrite');
-                tx.objectStore(IDB_STORE).put(JSON.parse(JSON.stringify(val)), key);
-            } catch (e) {}
+                db = await openVaultDB();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(IDB_STORE, 'readwrite');
+                    const store = tx.objectStore(IDB_STORE);
+                    const req = store.get(key);
+                    req.onsuccess = () => {
+                        const existing = req.result;
+                        if (key === 'latestState' && existing && compareStateVersions(existing, val) > 0) return;
+                        if (key === 'safetySnapshots' && Array.isArray(existing) && Array.isArray(val)) {
+                            const byId = new Map();
+                            [...existing, ...val].forEach(snap => { if (snap && snap.id && snap.data) byId.set(String(snap.id), snap); });
+                            const merged = [...byId.values()].sort((a, b) => {
+                                const at = Date.parse(a.createdAt || '') || Number(String(a.id || '').replace(/\D/g, '')) || 0;
+                                const bt = Date.parse(b.createdAt || '') || Number(String(b.id || '').replace(/\D/g, '')) || 0;
+                                return bt - at;
+                            }).slice(0, 12);
+                            store.put(merged, key);
+                        } else {
+                            store.put(JSON.parse(JSON.stringify(val)), key);
+                        }
+                    };
+                    req.onerror = () => reject(req.error || new Error('Không đọc được bản ghi IndexedDB'));
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => reject(tx.error || new Error('Không ghi được IndexedDB'));
+                    tx.onabort = () => reject(tx.error || new Error('Giao dịch IndexedDB bị hủy'));
+                });
+            } catch (e) {
+                // IndexedDB is a secondary recovery layer; LocalStorage remains available.
+            } finally {
+                if (db) { try { db.close(); } catch (e) {} }
+            }
         }
 
         async function readFromIndexedDB(key) {
@@ -1126,7 +1622,10 @@
         function getSafetySnapshots() {
             try {
                 const raw = localStorage.getItem(SNAPSHOTS_KEY);
-                if (raw) return JSON.parse(raw);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    return Array.isArray(parsed) ? parsed : [];
+                }
             } catch (e) {}
             return [];
         }
@@ -1137,14 +1636,17 @@
                 const now = new Date();
                 const timeStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 snapshots.unshift({
-                    id: 'snap_' + Date.now(),
+                    id: 'snap_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                    createdAt: now.toISOString(),
                     time: timeStr,
                     reason,
                     summary: `${state.childName} • ${state.stars}⭐ • 🔥${state.streak} ngày`,
                     data: JSON.parse(JSON.stringify(state))
                 });
                 const trimmed = snapshots.slice(0, 12);
-                localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(trimmed));
+                try { localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(trimmed)); } catch (e) {
+                    console.warn('Không thể lưu snapshot vào LocalStorage; vẫn thử IndexedDB:', e);
+                }
                 writeToIndexedDB('safetySnapshots', trimmed);
             } catch (e) {
                 console.error('Không thể tạo snapshot:', e);
@@ -1156,7 +1658,7 @@
             const found = snapshots.find(s => s.id === snapId);
             if (!found || !found.data) return;
             createSafetySnapshot('Trước khi khôi phục mốc cũ');
-            state = { ...getDefaultState(), ...found.data };
+            replaceStateData(found.data);
             saveState();
             playSoundEffect('levelup');
             triggerConfetti('big');
@@ -1186,31 +1688,64 @@
             `).join('');
         }
 
-        // ================= TỰ ĐỘNG KIỂM TRA QUA NGÀY MỚI =================
+        // ================= TỰ ĐỘNG KIỂM TRA QUA NGÀY MỚI & LOGIC STREAK >70% =================
+        function isStreakThresholdMet(pct) {
+            // The product copy says strictly greater than 70%, not greater-than-or-equal.
+            return Number(pct) > 70;
+        }
+
+        function getCalendarDayGap(fromDate, toDate) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fromDate || '')) || !/^\d{4}-\d{2}-\d{2}$/.test(String(toDate || ''))) return 0;
+            const from = new Date(`${fromDate}T00:00:00`);
+            const to = new Date(`${toDate}T00:00:00`);
+            return Math.round((to.getTime() - from.getTime()) / 86400000);
+        }
+
         function checkAutoNewDay() {
             const todayStr = getTodayDateString();
-            if (state.lastActiveDate && state.lastActiveDate !== todayStr) {
+            const currentWeekMon = getMondayDateStringOfCurrentWeek();
+            const lastDate = state.lastActiveDate;
+
+            if (lastDate && lastDate !== todayStr) {
                 const total = state.habits.length;
                 const done = state.habits.filter(h => h.completed).length;
                 const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                const gap = getCalendarDayGap(lastDate, todayStr);
+                // A credit already recorded for that date is authoritative. This matters when
+                // a parent manually resets the checklist after the child qualified that day.
+                const wasQualified = state.lastStreakCreditedDate === lastDate || isStreakThresholdMet(pct);
 
-                if (pct >= 70) {
-                    state.streak += 1;
-                    if (state.streak > (state.bestStreak || 0)) {
-                        state.bestStreak = state.streak;
+                if (gap === 1 && wasQualified) {
+                    if (state.lastStreakCreditedDate !== lastDate) {
+                        state.streak = (state.streak || 0) + 1;
+                        state.lastStreakCreditedDate = lastDate;
                     }
+                    if (state.streak > (state.bestStreak || 0)) state.bestStreak = state.streak;
                 } else {
-                    state.streak = 1;
+                    // If a day was missed, the consecutive run is broken; do not carry a
+                    // previous day's credit through a multi-day gap.
+                    state.streak = 0;
+                    state.lastStreakCreditedDate = '';
+                    state.streakLockedDate = '';
                 }
 
-                if (getTodayMondayBasedIndex() === 0) {
-                    state.weeklyHistory.forEach(w => { w.percent = 0; w.stars = 0; });
+                if (state.weekMondayDate !== currentWeekMon) {
+                    state.weeklyHistory = [
+                        { day: 'T2', percent: 0, stars: 0, done: 0, total: total },
+                        { day: 'T3', percent: 0, stars: 0, done: 0, total: total },
+                        { day: 'T4', percent: 0, stars: 0, done: 0, total: total },
+                        { day: 'T5', percent: 0, stars: 0, done: 0, total: total },
+                        { day: 'T6', percent: 0, stars: 0, done: 0, total: total },
+                        { day: 'T7', percent: 0, stars: 0, done: 0, total: total },
+                        { day: 'CN', percent: 0, stars: 0, done: 0, total: total }
+                    ];
+                    state.weekMondayDate = currentWeekMon;
                 }
 
                 if (!Array.isArray(state.dailyArchives)) state.dailyArchives = [];
-                const earnedYesterday = state.habits.filter(h => h.completed).reduce((s, h) => s + (Number(h.stars) || 2), 0);
+                const earnedYesterday = state.habits.filter(h => h.completed).reduce((sum, h) => sum + (Number(h.stars) || 2), 0);
                 state.dailyArchives.unshift({
-                    date: state.lastActiveDate.slice(5).split('-').reverse().join('/'),
+                    date: lastDate.slice(8, 10) + '/' + lastDate.slice(5, 7) + '/' + lastDate.slice(0, 4),
                     done,
                     total,
                     pct,
@@ -1218,79 +1753,327 @@
                 });
                 if (state.dailyArchives.length > 60) state.dailyArchives = state.dailyArchives.slice(0, 60);
 
-                createSafetySnapshot(`Bản lưu cuối ngày ${state.lastActiveDate} (${pct}%)`);
-                addActivityLog('🌅', `Tổng kết ngày ${state.lastActiveDate}: Hoàn thành ${done}/${total} việc (${pct}%)`, `🔥 Chuỗi ${state.streak} ngày`);
-
+                createSafetySnapshot(`Bản lưu cuối ngày ${lastDate} (${pct}%)`);
+                addActivityLog('🌅', `Tổng kết ngày ${lastDate}: Hoàn thành ${done}/${total} việc (${pct}%)`, `🔥 Chuỗi ${state.streak} ngày`);
                 state.habits.forEach(h => h.completed = false);
                 state.lastActiveDate = todayStr;
+                state.streakLockedDate = '';
                 saveState();
                 setTimeout(() => {
                     showToast('🌅 Chào buổi sáng! Một ngày mới tuyệt vời đã bắt đầu!', 'bg-emerald-500');
                 }, 600);
             } else if (!state.lastActiveDate) {
                 state.lastActiveDate = todayStr;
+                state.weekMondayDate = currentWeekMon;
+                saveState();
+            } else if (state.weekMondayDate !== currentWeekMon) {
+                state.weeklyHistory = [
+                    { day: 'T2', percent: 0, stars: 0, done: 0, total: state.habits.length },
+                    { day: 'T3', percent: 0, stars: 0, done: 0, total: state.habits.length },
+                    { day: 'T4', percent: 0, stars: 0, done: 0, total: state.habits.length },
+                    { day: 'T5', percent: 0, stars: 0, done: 0, total: state.habits.length },
+                    { day: 'T6', percent: 0, stars: 0, done: 0, total: state.habits.length },
+                    { day: 'T7', percent: 0, stars: 0, done: 0, total: state.habits.length },
+                    { day: 'CN', percent: 0, stars: 0, done: 0, total: state.habits.length }
+                ];
+                state.weekMondayDate = currentWeekMon;
                 saveState();
             }
         }
 
-        // ================= HIỆU ỨNG ÂM THANH & PHÁO HOA =================
+        function evaluateRealtimeTodayStreak() {
+            const todayStr = getTodayDateString();
+            const total = state.habits.length;
+            const done = state.habits.filter(h => h.completed).length;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            const qualified = isStreakThresholdMet(pct) && total > 0;
+
+            if (qualified && state.lastStreakCreditedDate !== todayStr) {
+                state.streak = (state.streak || 0) + 1;
+                if (state.streak > (state.bestStreak || 0)) state.bestStreak = state.streak;
+                state.lastStreakCreditedDate = todayStr;
+                state.streakLockedDate = '';
+                return 'STREAK_GAINED';
+            }
+            if (!qualified && state.lastStreakCreditedDate === todayStr && state.streakLockedDate !== todayStr) {
+                state.streak = Math.max(0, (state.streak || 0) - 1);
+                state.lastStreakCreditedDate = '';
+                return 'STREAK_REVERTED';
+            }
+            return 'NO_CHANGE';
+        }
+
+        // ================= HỆ THỐNG ÂM THANH NHẠC CỤ & BỘ MÁY GIỌNG ĐỌC TIẾNG VIỆT KÉP =================
+        let verifiedLocalViVoices = [];
+        let sharedAudioCtx = null;
+        let currentCloudAudio = null;
+
+        function getAudioContext() {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return null;
+            if (!sharedAudioCtx) sharedAudioCtx = new AudioCtx();
+            if (sharedAudioCtx.state === 'suspended') sharedAudioCtx.resume();
+            return sharedAudioCtx;
+        }
+
+        function playRichTone(freq, startTime, duration, type = 'sine', peakGain = 0.14) {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const filter = ctx.createBiquadFilter();
+            const gain = ctx.createGain();
+
+            osc1.type = type;
+            osc1.frequency.setValueAtTime(freq, startTime);
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(freq * 2, startTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2400, startTime);
+
+            gain.gain.setValueAtTime(0.001, startTime);
+            gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.018);
+            gain.gain.exponentialRampToValueAtTime(0.0008, startTime + duration);
+
+            osc1.connect(filter);
+            osc2.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc1.start(startTime);
+            osc2.start(startTime);
+            osc1.stop(startTime + duration);
+            osc2.stop(startTime + duration);
+        }
+
         function playSoundEffect(type) {
             if (!state.soundEnabled) return;
             try {
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                if (!AudioCtx) return;
-                const ctx = new AudioCtx();
+                const ctx = getAudioContext();
+                if (!ctx) return;
                 const now = ctx.currentTime;
 
                 if (type === 'complete') {
                     const notes = [523.25, 659.25, 783.99, 1046.5];
                     notes.forEach((freq, idx) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
-                        gain.gain.setValueAtTime(0.14, now + idx * 0.07);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.22);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(now + idx * 0.07);
-                        osc.stop(now + idx * 0.07 + 0.23);
+                        playRichTone(freq, now + idx * 0.075, 0.32, 'sine', 0.14);
                     });
                 } else if (type === 'levelup') {
-                    const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+                    const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98];
                     notes.forEach((freq, idx) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'triangle';
-                        osc.frequency.setValueAtTime(freq, now + idx * 0.09);
-                        gain.gain.setValueAtTime(0.18, now + idx * 0.09);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.3);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(now + idx * 0.09);
-                        osc.stop(now + idx * 0.09 + 0.32);
+                        playRichTone(freq, now + idx * 0.085, 0.42, 'triangle', 0.16);
                     });
                 } else if (type === 'uncheck') {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(360, now);
-                    osc.frequency.exponentialRampToValueAtTime(240, now + 0.15);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.17);
+                    playRichTone(360, now, 0.15, 'sine', 0.1);
+                    playRichTone(260, now + 0.08, 0.2, 'sine', 0.09);
+                } else if (type === 'penalty') {
+                    playRichTone(330, now, 0.22, 'triangle', 0.14);
+                    playRichTone(246.94, now + 0.15, 0.35, 'sine', 0.14);
                 }
             } catch (e) {}
         }
 
+        function isStrictVietnameseVoice(voice) {
+            if (!voice) return false;
+            const langNorm = String(voice.lang || '').replace('_', '-').toLowerCase().trim();
+            const nameNorm = String(voice.name || '').toLowerCase();
+            if (langNorm === 'vi' || langNorm.startsWith('vi-')) return true;
+            if (nameNorm.includes('vietnam') || nameNorm.includes('tiếng việt') || nameNorm.includes('hoaimy') || nameNorm.includes('namminh')) return true;
+            return false;
+        }
+
+        function loadSystemVoices() {
+            if (!('speechSynthesis' in window)) return;
+            const allVoices = window.speechSynthesis.getVoices() || [];
+            verifiedLocalViVoices = allVoices.filter(isStrictVietnameseVoice);
+
+            verifiedLocalViVoices.sort((a, b) => {
+                const score = (v) => {
+                    const n = v.name.toLowerCase();
+                    if (n.includes('natural') || n.includes('hoaimy') || n.includes('namminh')) return 12;
+                    if (n.includes('premium') || n.includes('enhanced') || n.includes('linh')) return 10;
+                    if (n.includes('google')) return 8;
+                    return 2;
+                };
+                return score(b) - score(a);
+            });
+
+            const sel = document.getElementById('voice-select-dropdown');
+            if (sel) {
+                let html = `<option value="cloud_google_vi" ${(!state.voiceName || state.voiceName === 'cloud_google_vi') ? 'selected' : ''}>🌸 Giọng Nữ Google Tiếng Việt Chuẩn (Mọi trình duyệt Web & iPad)</option>`;
+                verifiedLocalViVoices.forEach(v => {
+                    const selected = state.voiceName === v.name ? 'selected' : '';
+                    html += `<option value="${v.name}" ${selected}>🎙️ Giọng máy: ${v.name} (${v.lang})</option>`;
+                });
+                sel.innerHTML = html;
+            }
+            const rateSel = document.getElementById('voice-rate-select');
+            if (rateSel && state.voiceRate) {
+                rateSel.value = String(state.voiceRate);
+            }
+            const noteEl = document.getElementById('voice-engine-status-note');
+            if (noteEl) {
+                noteEl.textContent = verifiedLocalViVoices.length > 0
+                    ? `✅ Phát hiện ${verifiedLocalViVoices.length} giọng Tiếng Việt trên máy + Giọng Nữ Google Cloud Tiếng Việt.`
+                    : `✅ Trình duyệt của bạn chưa cài gói âm thanh Tiếng Việt nội bộ -> Hệ thống tự động dùng Giọng Nữ Google Cloud Tiếng Việt chuẩn 100%!`;
+            }
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = loadSystemVoices;
+            setTimeout(loadSystemVoices, 300);
+        }
+
+        function formatNaturalSpeechText(text) {
+            return String(text || '')
+                .replace(/⭐/g, ' ngôi sao ')
+                .replace(/💧/g, ' giọt nước ')
+                .replace(/🔥/g, ' chuỗi ngày ')
+                .replace(/🍓/g, ' quả dâu ')
+                .replace(/&/g, ' và ')
+                .replace(/15p/gi, '15 phút')
+                .replace(/21h30/gi, '9 giờ 30 tối')
+                .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function splitTextIntoChunks(text, maxLen = 170) {
+            const sentences = text.split(/(?<=[.!?।,;])\s+/);
+            const chunks = [];
+            let current = '';
+            for (const s of sentences) {
+                if ((current + ' ' + s).trim().length <= maxLen) {
+                    current = (current + ' ' + s).trim();
+                } else {
+                    if (current) chunks.push(current);
+                    if (s.length <= maxLen) {
+                        current = s;
+                    } else {
+                        const words = s.split(' ');
+                        current = '';
+                        for (const w of words) {
+                            if ((current + ' ' + w).trim().length <= maxLen) {
+                                current = (current + ' ' + w).trim();
+                            } else {
+                                if (current) chunks.push(current);
+                                current = w;
+                            }
+                        }
+                    }
+                }
+            }
+            if (current) chunks.push(current);
+            return chunks.length > 0 ? chunks : [text.slice(0, maxLen)];
+        }
+
+        function stopActiveSpeech() {
+            try {
+                if (currentCloudAudio) {
+                    currentCloudAudio.pause();
+                    currentCloudAudio.src = '';
+                    currentCloudAudio = null;
+                }
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                }
+            } catch (e) {}
+        }
+
+        function speakViaVerifiedLocalVietnamese(cleanText) {
+            if (!('speechSynthesis' in window)) return false;
+            if (verifiedLocalViVoices.length === 0) loadSystemVoices();
+
+            if (verifiedLocalViVoices.length === 0) {
+                return false;
+            }
+
+            let targetVoice = verifiedLocalViVoices[0];
+            if (state.voiceName && state.voiceName !== 'cloud_google_vi') {
+                const matched = verifiedLocalViVoices.find(v => v.name === state.voiceName);
+                if (matched) targetVoice = matched;
+            }
+
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(cleanText);            utter.voice = targetVoice;
+            utter.lang = targetVoice.lang || 'vi-VN';
+            utter.rate = Number(state.voiceRate) || 1.0;
+            utter.pitch = 1.05;
+            window.speechSynthesis.speak(utter);
+            return true;
+        }
+
+        function speakViaCloudVietnameseTTS(cleanText, onFallback) {
+            const chunks = splitTextIntoChunks(cleanText, 165);
+            let idx = 0;
+
+            function playNextChunk() {
+                if (idx >= chunks.length) return;
+                const chunk = chunks[idx++];
+                const url = `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=vi&dt=t&q=${encodeURIComponent(chunk)}`;
+                const audio = new Audio();
+                audio.referrerPolicy = 'no-referrer';
+                audio.playbackRate = Number(state.voiceRate) || 1.0;
+                audio.src = url;
+                currentCloudAudio = audio;
+
+                audio.onended = () => {
+                    playNextChunk();
+                };
+                audio.onerror = () => {
+                    if (typeof onFallback === 'function') onFallback();
+                };
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        if (typeof onFallback === 'function') onFallback();
+                    });
+                }
+            }
+
+            playNextChunk();
+        }
+
+        function speakVietnameseText(text) {
+            if (!state.soundEnabled) return;
+            const cleanText = formatNaturalSpeechText(text);
+            if (!cleanText) return;
+
+            stopActiveSpeech();
+
+            if (state.voiceName && state.voiceName !== 'cloud_google_vi') {
+                const ok = speakViaVerifiedLocalVietnamese(cleanText);
+                if (ok) return;
+            }
+
+            speakViaCloudVietnameseTTS(cleanText, () => {
+                speakViaVerifiedLocalVietnamese(cleanText);
+            });
+        }
+
+        function updateVoiceSelection(val) {
+            state.voiceName = val;
+            saveState();
+            testVoiceSample();
+        }
+
+        function updateVoiceRate(val) {
+            state.voiceRate = Number(val) || 1.0;
+            saveState();
+            testVoiceSample();
+        }
+
+        function testVoiceSample() {
+            speakVietnameseText(`Chào ${state.childName}! Chúc con gái một ngày học vui và trồng được nhiều cây đẹp nhé!`);
+        }
+
         function toggleSound() {
             state.soundEnabled = !state.soundEnabled;
+            if (!state.soundEnabled) stopActiveSpeech();
             saveState();
             renderHeader();
-            showToast(state.soundEnabled ? '🔊 Đã bật âm thanh vui nhộn!' : '🔇 Đã tắt âm thanh');
+            showToast(state.soundEnabled ? '🔊 Đã bật âm thanh & giọng đọc Tiếng Việt!' : '🔇 Đã tắt âm thanh');
         }
 
         function triggerConfetti(intensity = 'normal') {
@@ -1320,10 +2103,30 @@
         }
 
         // ================= RENDER GIAO DIỆN CHÍNH =================
+        function updateTimeOfDayTheme() {
+            const hr = new Date().getHours();
+            const body = document.getElementById('app-body');
+            const sunIcon = document.getElementById('garden-sun-icon');
+            if (!body) return;
+            body.classList.remove('theme-morning', 'theme-afternoon', 'theme-evening');
+            if (hr < 12) {
+                body.classList.add('theme-morning');
+                if (sunIcon) sunIcon.textContent = '☀️';
+            } else if (hr < 18) {
+                body.classList.add('theme-afternoon');
+                if (sunIcon) sunIcon.textContent = '🌤️';
+            } else {
+                body.classList.add('theme-evening');
+                if (sunIcon) sunIcon.textContent = '🌙';
+            }
+        }
+
         function renderAll() {
+            updateTimeOfDayTheme();
             syncTodayToWeeklyHistory();
             renderHeader();
             renderHabits();
+            renderPenalties();
             renderGarden();
             renderWeeklyChart();
             renderRewards();
@@ -1336,9 +2139,18 @@
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
             const starsToday = state.habits.filter(h => h.completed).reduce((sum, h) => sum + (Number(h.stars) || 2), 0);
             const todayIdx = getTodayMondayBasedIndex();
-            if (state.weeklyHistory && state.weeklyHistory[todayIdx]) {
+            const dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+            if (!Array.isArray(state.weeklyHistory) || state.weeklyHistory.length !== 7) {
+                state.weeklyHistory = dayLabels.map(d => ({ day: d, percent: 0, stars: 0, done: 0, total: total }));
+            }
+
+            if (state.weeklyHistory[todayIdx]) {
+                state.weeklyHistory[todayIdx].day = dayLabels[todayIdx];
                 state.weeklyHistory[todayIdx].percent = pct;
                 state.weeklyHistory[todayIdx].stars = starsToday;
+                state.weeklyHistory[todayIdx].done = done;
+                state.weeklyHistory[todayIdx].total = total;
             }
         }
 
@@ -1367,9 +2179,14 @@
             const headerPetIcon = document.getElementById('header-pet-icon');
             const compBox = document.getElementById('companion-avatar-box');
             const compName = document.getElementById('companion-name-label');
+            const compAff = document.getElementById('companion-affection-badge');
+            const petTreatsEl = document.getElementById('pet-treats-count');
+
             if (headerPetIcon) headerPetIcon.textContent = petObj.icon;
             if (compBox) compBox.textContent = petObj.icon;
             if (compName) compName.textContent = `Bạn ${petObj.name}`;
+            if (compAff) compAff.textContent = `❤️ ${state.petAffection || 90}%`;
+            if (petTreatsEl) petTreatsEl.textContent = state.petTreats || 0;
 
             const unlockedStickers = STICKER_COLLECTION.filter(s => s.check(state)).length;
             const stickerBadge = document.getElementById('sticker-badge-count');
@@ -1380,6 +2197,7 @@
             const banner = document.getElementById('parent-mode-banner');
             const addHabitBtn = document.getElementById('add-habit-btn');
             const addRewardBtn = document.getElementById('add-reward-btn');
+            const addPenaltyBtn = document.getElementById('add-penalty-btn');
             const editProfileBtn = document.getElementById('edit-profile-btn');
             const parentToggleBtn = document.getElementById('parent-mode-toggle-btn');
             const lockIcon = document.getElementById('parent-lock-icon');
@@ -1390,6 +2208,7 @@
                 if (banner) banner.classList.remove('hidden');
                 if (addHabitBtn) { addHabitBtn.classList.remove('hidden'); addHabitBtn.classList.add('flex'); }
                 if (addRewardBtn) { addRewardBtn.classList.remove('hidden'); addRewardBtn.classList.add('flex'); }
+                if (addPenaltyBtn) { addPenaltyBtn.classList.remove('hidden'); addPenaltyBtn.classList.add('flex'); }
                 if (editProfileBtn) { editProfileBtn.classList.remove('hidden'); editProfileBtn.classList.add('flex'); }
                 if (parentToggleBtn) parentToggleBtn.className = 'btn-3d px-3.5 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm flex items-center gap-1.5 border-2 border-white shadow';
                 if (lockIcon) lockIcon.className = 'fa-solid fa-lock-open text-xs';
@@ -1402,6 +2221,7 @@
                 if (banner) banner.classList.add('hidden');
                 if (addHabitBtn) { addHabitBtn.classList.add('hidden'); addHabitBtn.classList.remove('flex'); }
                 if (addRewardBtn) { addRewardBtn.classList.add('hidden'); addRewardBtn.classList.remove('flex'); }
+                if (addPenaltyBtn) { addPenaltyBtn.classList.add('hidden'); addPenaltyBtn.classList.remove('flex'); }
                 if (editProfileBtn) { editProfileBtn.classList.add('hidden'); editProfileBtn.classList.remove('flex'); }
                 if (parentToggleBtn) parentToggleBtn.className = 'btn-3d px-3.5 py-2.5 rounded-2xl bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold text-sm flex items-center gap-1.5 border-2 border-white';
                 if (lockIcon) lockIcon.className = 'fa-solid fa-lock text-xs';
@@ -1433,10 +2253,31 @@
             const total = state.habits.length;
             const done = state.habits.filter(h => h.completed).length;
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            const isQualified = isStreakThresholdMet(pct) && total > 0;
 
             document.getElementById('daily-progress-text').textContent = `Đã hoàn thành: ${done}/${total} công việc`;
             document.getElementById('daily-progress-percent').textContent = `${pct}%`;
             document.getElementById('daily-progress-bar').style.width = `${pct}%`;
+
+            const streakPill = document.getElementById('daily-streak-status-pill');
+            const streakDot = document.getElementById('streak-today-dot');
+            const flameIcon = document.getElementById('streak-flame-icon');
+            if (streakPill) {
+                if (isQualified) {
+                    streakPill.className = 'text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300';
+                    streakPill.innerHTML = '🔥 Đã đạt chuẩn Streak hôm nay!';
+                } else {
+                    const needed = Math.max(1, Math.floor(total * 0.7) + 1 - done);
+                    streakPill.className = 'text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200';
+                    streakPill.innerHTML = `Cần thêm ${needed} việc để đạt &gt;70% 🔥`;
+                }
+            }
+            if (streakDot) {
+                streakDot.className = isQualified ? 'w-2 h-2 rounded-full bg-emerald-500 animate-ping' : 'w-2 h-2 rounded-full bg-slate-300';
+            }
+            if (flameIcon) {
+                flameIcon.className = isQualified ? 'text-2xl sm:text-3xl streak-fire-glow' : 'text-2xl sm:text-3xl animate-bounce';
+            }
 
             const categoryBadges = {
                 morning: { label: '☀️ Buổi Sáng', cls: 'bg-amber-100 text-amber-800' },
@@ -1502,39 +2343,106 @@
         }
 
         function toggleHabit(id) {
-            const habit = state.habits.find(h => h.id === id);
+            const habit = state.habits.find(h => String(h.id) === String(id));
             if (!habit) return;
+            const todayStr = getTodayDateString();
+            const ledger = ensureTodayHabitRewardLedger();
+            const habitId = String(habit.id);
+            const starValue = Math.max(0, Number(habit.stars) || 2);
 
-            const starValue = Number(habit.stars) || 2;
             if (!habit.completed) {
+                const priorReward = ledger[habitId];
                 habit.completed = true;
-                state.stars += starValue;
                 state.totalTasksCompleted = (state.totalTasksCompleted || 0) + 1;
-                const oldStage = getPlantStage(state.currentPlant.exp);
-                state.currentPlant.exp = Math.min(12, state.currentPlant.exp + 1);
-                const newStage = getPlantStage(state.currentPlant.exp);
 
-                addActivityLog(habit.icon || '🌟', `Hoàn thành: ${habit.title}`, `+${starValue} ⭐`);
-                triggerWateringAnimation();
-
-                if (newStage > oldStage) {
-                    playSoundEffect('levelup');
-                    triggerConfetti('big');
-                    showToast(`🌱 Tuyệt vời! Cây của con đã lớn lên Cấp ${newStage}/5!`, 'bg-emerald-600');
+                if (!priorReward) {
+                    state.stars = Math.max(0, Number(state.stars) || 0) + starValue;
+                    const treatToken = createPetTreatToken(`habit:${todayStr}:${habitId}`);
+                    if (!state.currentPlant || typeof state.currentPlant !== 'object') state.currentPlant = { type: 'strawberry', exp: 0 };
+                    if (!Number.isFinite(Number(state.plantGeneration))) state.plantGeneration = 0;
+                    const expBefore = Math.max(0, Math.min(12, Number(state.currentPlant.exp) || 0));
+                    const waterApplied = expBefore < 12;
+                    state.currentPlant.exp = Math.min(12, expBefore + 1);
+                    ledger[habitId] = {
+                        legacy: false,
+                        stars: starValue,
+                        treatTokenId: treatToken.id,
+                        waterApplied,
+                        plantGeneration: state.plantGeneration,
+                        expBefore,
+                        earnedAt: new Date().toISOString()
+                    };
+                    const streakChange = evaluateRealtimeTodayStreak();
+                    addActivityLog(habit.icon || '🌟', `Hoàn thành: ${habit.title}`, `+${starValue} ⭐`);
+                    triggerWateringAnimation();
+                    if (streakChange === 'STREAK_GAINED') {
+                        playSoundEffect('levelup');
+                        triggerConfetti('big');
+                        speakVietnameseText(`Hoan hô ${state.childName}! Con đã hoàn thành trên 70 phần trăm mục tiêu và tăng chuỗi ngày lên ${state.streak} ngày liên tiếp!`);
+                        showToast(`🔥 ĐẠT MỐC >70%! Chuỗi ngày của con đã tăng lên ${state.streak} ngày liên tiếp!`, 'bg-orange-500');
+                    } else {
+                        playSoundEffect('complete');
+                        triggerConfetti('normal');
+                        const waterNotice = waterApplied ? '+1 💧 tưới cây' : '🌱 cây đã đủ nước';
+                        showToast(`🎉 Giỏi quá! Con nhận được +${starValue} ⭐, ${waterNotice} và +1 🍓 cho thú cưng!`, 'bg-pink-500');
+                    }
                 } else {
+                    // Re-checking after an undo restores task status but never issues a second reward.
+                    evaluateRealtimeTodayStreak();
+                    addActivityLog(habit.icon || '🌟', `Đánh dấu lại: ${habit.title}`, 'Không cộng thưởng lần hai');
                     playSoundEffect('complete');
-                    triggerConfetti('normal');
-                    showToast(`🎉 Giỏi quá! Con nhận được +${starValue} ⭐ và +1 💧 tưới cây!`, 'bg-pink-500');
+                    showToast('✅ Đã đánh dấu hoàn thành. Con đã nhận thưởng cho việc này hôm nay rồi nhé!', 'bg-indigo-600');
                 }
             } else {
+                const reward = ledger[habitId];
+                let reversedStars = 0;
+                if (reward && !reward.legacy && !reward.reversed) {
+                    const inventory = ensurePetTreatInventory();
+                    const treatIndex = inventory.findIndex(t => t.id === reward.treatTokenId);
+                    const canReverseWater = !reward.waterApplied || Number(state.plantGeneration || 0) === Number(reward.plantGeneration || 0);
+                    if ((Number(state.stars) || 0) < Number(reward.stars || 0)) {
+                        showToast(`🔒 Chưa thể hoàn tác: con cần còn ít nhất ${reward.stars} ⭐ để thu hồi thưởng của việc này.`, 'bg-amber-500');
+                        return;
+                    }
+                    if (reward.treatTokenId && treatIndex < 0) {
+                        showToast('🔒 Chưa thể hoàn tác: dâu thưởng đã được dùng để cho thú cưng ăn. Bố Mẹ có thể điều chỉnh cùng con nhé!', 'bg-amber-500');
+                        return;
+                    }
+                    if (!canReverseWater) {
+                        showToast('🔒 Chưa thể hoàn tác: giọt nước của việc này đã được dùng trước khi thu hoạch cây.', 'bg-amber-500');
+                        return;
+                    }
+                    reversedStars = Math.max(0, Number(reward.stars) || 0);
+                    state.stars = Math.max(0, (Number(state.stars) || 0) - reversedStars);
+                    if (treatIndex >= 0) inventory.splice(treatIndex, 1);
+                    state.petTreats = inventory.length;
+                    if (reward.waterApplied) state.currentPlant.exp = Math.max(0, (Number(state.currentPlant.exp) || 0) - 1);
+                    reward.reversed = true;
+                    reward.stars = 0;
+                    reward.treatTokenId = null;
+                    reward.waterApplied = false;
+                }
                 habit.completed = false;
-                state.stars = Math.max(0, state.stars - starValue);
-                state.totalTasksCompleted = Math.max(0, (state.totalTasksCompleted || 1) - 1);
-                state.currentPlant.exp = Math.max(0, state.currentPlant.exp - 1);
+                state.totalTasksCompleted = Math.max(0, (state.totalTasksCompleted || 0) - 1);
+                const streakChange = evaluateRealtimeTodayStreak();
+                addActivityLog(habit.icon || '🌟', `Bỏ đánh dấu: ${habit.title}`, reversedStars > 0 ? `-${reversedStars} ⭐` : 'Hoàn tác trạng thái');
                 playSoundEffect('uncheck');
+                if (streakChange === 'STREAK_REVERTED') {
+                    showToast('↩️ Đã bỏ đánh dấu. Chuỗi ngày được cập nhật theo tiến độ hiện tại.', 'bg-amber-500');
+                }
             }
-
             renderAll();
+        }
+
+        function explainStreakRule() {
+            const total = state.habits.length;
+            const done = state.habits.filter(h => h.completed).length;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            const msg = isStreakThresholdMet(pct)
+                ? `Hôm nay con đã đạt ${pct} phần trăm, vượt mốc 70 phần trăm nên đã được cộng vào Chuỗi ${state.streak} ngày liên tiếp!`
+                : `Con cần hoàn thành trên 70 phần trăm số việc trong ngày để được cộng thêm 1 ngày vào Chuỗi ngày liên tiếp!`;
+            showToast(`🔥 ${msg}`, 'bg-orange-500');
+            speakVietnameseText(msg);
         }
 
         function openHabitModal(editId = null) {
@@ -1621,6 +2529,7 @@
                 showToast('✨ Đã thêm công việc mới cho bé!', 'bg-pink-500');
             }
 
+            evaluateRealtimeTodayStreak();
             closeHabitModal();
             renderAll();
         }
@@ -1633,17 +2542,235 @@
             const h = state.habits.find(item => item.id === id);
             createSafetySnapshot(`Trước khi xóa việc: ${h ? h.title : ''}`);
             state.habits = state.habits.filter(item => item.id !== id);
+            evaluateRealtimeTodayStreak();
             showToast('🗑️ Đã xóa mục tiêu (Đã lưu bản dự phòng tự động)');
             renderAll();
         }
 
-        // ================= 2. KHU VƯỜN KỲ DIỆU 5 GIAI ĐOẠN (SVG ĐỘNG) =================
+        // ================= 1B. THẺ NHẮC NHỞ / CẢNH CÁO / PHẠT TRỪ SAO (MỚI V5.2) =================
+        function renderPenalties() {
+            const container = document.getElementById('penalties-list-container');
+            const historyEl = document.getElementById('penalty-history-container');
+            if (!container || !historyEl) return;
+
+            const levelStyles = {
+                remind: { label: '🔔 Nhắc nhở', badgeCls: 'bg-amber-100 text-amber-800 border-amber-200', cardCls: 'from-amber-50/50 to-white border-amber-200' },
+                warning: { label: '⚠️ Cảnh cáo', badgeCls: 'bg-orange-100 text-orange-800 border-orange-200', cardCls: 'from-orange-50/60 to-white border-orange-200' },
+                penalty: { label: '🚨 Phạt sao', badgeCls: 'bg-rose-100 text-rose-800 border-rose-200', cardCls: 'from-rose-50/70 to-white border-rose-200' }
+            };
+
+            const list = state.penalties || [];
+            if (list.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 font-bold text-xs">Chưa có thẻ nhắc nhở nào. Bố Mẹ có thể bấm "+ Thêm Thẻ Phạt" để tạo quy tắc nhé!</div>`;
+            } else {
+                container.innerHTML = list.map(p => {
+                    const st = levelStyles[p.level] || levelStyles.warning;
+                    const pts = Math.max(1, Number(p.points) || 2);
+                    return `
+                        <div class="p-3.5 rounded-2xl border-2 bg-gradient-to-br ${st.cardCls} flex items-center justify-between gap-2.5 shadow-sm">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-11 h-11 rounded-2xl bg-white border border-rose-200 flex items-center justify-center text-2xl shrink-0 shadow-sm">
+                                    ${p.icon || '⚠️'}
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap mb-0.5">
+                                        <span class="text-[10px] font-extrabold px-2 py-0.2 rounded-full border ${st.badgeCls}">${st.label}</span>
+                                        <span class="text-xs font-extrabold text-rose-600">-${pts} ⭐</span>
+                                    </div>
+                                    <div class="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug">${p.title}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="handleParentProtectedAction(() => applyPenaltyCard('${p.id}'))" class="btn-3d bg-rose-500 hover:bg-rose-600 text-white font-extrabold px-2.5 py-2 rounded-xl text-xs whitespace-nowrap" title="Bố Mẹ bấm để ghi nhận vi phạm và trừ sao">
+                                    -${pts} ⭐
+                                </button>
+                                ${isParentMode ? `
+                                    <button onclick="openPenaltyModal('${p.id}')" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center text-xs" title="Sửa thẻ nhắc nhở này">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deletePenaltyCard('${p.id}')" class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs" title="Xóa thẻ nhắc nhở này">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const pHist = state.penaltyHistory || [];
+            if (pHist.length === 0) {
+                historyEl.innerHTML = `<span class="text-xs text-emerald-600 font-bold bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">🌟 Tuyệt vời! Gần đây con rất ngoan, chưa bị nhắc nhở lần nào!</span>`;
+            } else {
+                historyEl.innerHTML = pHist.slice(0, 8).map((item, idx) => `
+                    <span class="text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <span>${item.icon || '⚠️'}</span>
+                        <span>${item.title}</span>
+                        <strong class="text-rose-600">(-${item.points}⭐)</strong>
+                        <span class="text-[10px] text-rose-500">(${item.date})</span>
+                        ${isParentMode ? `
+                            <button onclick="undoPenaltyRecord(${idx})" class="ml-1 text-[10px] bg-white hover:bg-emerald-100 text-emerald-700 border border-emerald-300 px-1.5 py-0.2 rounded-md font-extrabold" title="Tha lỗi & Hoàn lại sao cho bé">
+                                ↩️ Hoàn sao
+                            </button>
+                        ` : ''}
+                    </span>
+                `).join('');
+            }
+        }
+
+        function applyPenaltyCard(id) {
+            const p = (state.penalties || []).find(item => item.id === id);
+            if (!p) return;
+
+            const pts = Math.max(1, Number(p.points) || 2);
+            createSafetySnapshot(`Trước khi trừ sao nhắc nhở: ${p.title}`);
+            state.stars = Math.max(0, (state.stars || 0) - pts);
+
+            const now = new Date();
+            const dStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            if (!Array.isArray(state.penaltyHistory)) state.penaltyHistory = [];
+            state.penaltyHistory.unshift({
+                id: 'ph_' + Date.now(),
+                title: p.title,
+                points: pts,
+                icon: p.icon || '⚠️',
+                level: p.level || 'warning',
+                date: dStr
+            });
+
+            addActivityLog(p.icon || '⚠️', `Nhắc nhở hành vi: ${p.title}`, `-${pts} ⭐`);
+            playSoundEffect('penalty');
+
+            const walletCard = document.getElementById('star-wallet-card');
+            if (walletCard) {
+                walletCard.classList.remove('shake-anim');
+                void walletCard.offsetWidth;
+                walletCard.classList.add('shake-anim');
+            }
+
+            const msg = `Bố Mẹ nhắc nhở ${state.childName}: ${p.title}. Con bị trừ ${pts} ngôi sao. Lần sau con nhớ ngoan và chú ý hơn nhé!`;
+            speakVietnameseText(msg);
+            showToast(`⚠️ Đã trừ -${pts} ⭐ (${p.title}). Mong con rút kinh nghiệm nhé!`, 'bg-rose-600');
+            renderAll();
+        }
+
+        function undoPenaltyRecord(idx) {
+            if (!isParentMode) {
+                handleParentProtectedAction(() => undoPenaltyRecord(idx));
+                return;
+            }
+            if (!Array.isArray(state.penaltyHistory) || !state.penaltyHistory[idx]) return;
+            const item = state.penaltyHistory[idx];
+            const pts = Math.max(1, Number(item.points) || 2);
+
+            state.stars = (state.stars || 0) + pts;
+            state.penaltyHistory.splice(idx, 1);
+            addActivityLog('💖', `Bố Mẹ tha lỗi & hoàn lại sao: ${item.title}`, `+${pts} ⭐`);
+            playSoundEffect('complete');
+            speakVietnameseText(`Bố Mẹ khen ${state.childName} đã biết sửa lỗi và hoàn lại ${pts} ngôi sao cho con!`);
+            showToast(`💖 Đã hoàn lại +${pts} ⭐ cho bé!`, 'bg-emerald-600');
+            renderAll();
+        }
+
+        function openPenaltyModal(editId = null) {
+            if (!isParentMode) {
+                handleParentProtectedAction(() => openPenaltyModal(editId));
+                return;
+            }
+            const modal = document.getElementById('penalty-modal');
+            const titleEl = document.getElementById('penalty-modal-title');
+            const idInput = document.getElementById('edit-penalty-id');
+            const titleInput = document.getElementById('penalty-title-input');
+            const levelInput = document.getElementById('penalty-level-input');
+            const pointsInput = document.getElementById('penalty-points-input');
+            const iconInput = document.getElementById('penalty-icon-input');
+
+            if (editId) {
+                const found = (state.penalties || []).find(p => p.id === editId);
+                if (found) {
+                    titleEl.textContent = '✏️ Chỉnh Sửa Thẻ Nhắc Nhở / Trừ Sao';
+                    idInput.value = found.id;
+                    titleInput.value = found.title;
+                    levelInput.value = found.level || 'warning';
+                    pointsInput.value = String(found.points || 2);
+                    iconInput.value = found.icon || '⚠️';
+                }
+            } else {
+                titleEl.textContent = '⚠️ Tạo Thẻ Nhắc Nhở / Trừ Sao Mới';
+                idInput.value = '';
+                titleInput.value = '';
+                levelInput.value = 'warning';
+                pointsInput.value = '2';
+                iconInput.value = '🧸';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePenaltyModal() {
+            const modal = document.getElementById('penalty-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function savePenaltyCard() {
+            const idVal = document.getElementById('edit-penalty-id').value;
+            const titleVal = document.getElementById('penalty-title-input').value.trim();
+            const levelVal = document.getElementById('penalty-level-input').value || 'warning';
+            const pointsVal = Math.max(1, Number(document.getElementById('penalty-points-input').value) || 2);
+            const iconVal = document.getElementById('penalty-icon-input').value || '⚠️';
+
+            if (!titleVal) {
+                showToast('⚠️ Vui lòng nhập nội dung hành vi cần nhắc nhở!', 'bg-amber-500');
+                return;
+            }
+
+            if (!Array.isArray(state.penalties)) state.penalties = [];
+
+            if (idVal) {
+                const found = state.penalties.find(p => p.id === idVal);
+                if (found) {
+                    found.title = titleVal;
+                    found.level = levelVal;
+                    found.points = pointsVal;
+                    found.icon = iconVal;
+                }
+                showToast('✅ Đã cập nhật thẻ nhắc nhở!', 'bg-emerald-600');
+            } else {
+                state.penalties.push({
+                    id: 'p_' + Date.now(),
+                    title: titleVal,
+                    level: levelVal,
+                    points: pointsVal,
+                    icon: iconVal
+                });
+                showToast('⚠️ Đã thêm thẻ nhắc nhở mới!', 'bg-rose-500');
+            }
+
+            closePenaltyModal();
+            renderAll();
+        }
+
+        function deletePenaltyCard(id) {
+            if (!isParentMode) {
+                handleParentProtectedAction(() => deletePenaltyCard(id));
+                return;
+            }
+            const found = (state.penalties || []).find(p => p.id === id);
+            createSafetySnapshot(`Trước khi xóa thẻ nhắc nhở: ${found ? found.title : ''}`);
+            state.penalties = (state.penalties || []).filter(p => p.id !== id);
+            showToast('🗑️ Đã xóa thẻ nhắc nhở');
+            renderAll();
+        }
+
+        // ================= 2. KHU VƯỜN KỲ DIỆU 8 GIỐNG CÂY 5 GIAI ĐOẠN (SVG ĐỘNG) =================
         function getPlantStage(exp) {
-            if (exp >= 12) return 5; // Kết trái / Nở rộ
-            if (exp >= 8) return 4;  // Ra hoa
-            if (exp >= 5) return 3;  // Cây non
-            if (exp >= 2) return 2;  // Nảy mầm
-            return 1;                // Hạt giống
+            if (exp >= 12) return 5;
+            if (exp >= 8) return 4;
+            if (exp >= 5) return 3;
+            if (exp >= 2) return 2;
+            return 1;
         }
 
         function selectPlantType(typeKey) {
@@ -1651,6 +2778,17 @@
             state.currentPlant.type = typeKey;
             playSoundEffect('complete');
             renderAll();
+        }
+
+        function tapGardenPlant() {
+            const pType = PLANT_TYPES[state.currentPlant.type] || PLANT_TYPES.strawberry;
+            const stage = getPlantStage(state.currentPlant.exp || 0);
+            playSoundEffect('complete');
+            const msg = stage >= 5
+                ? `${pType.name} đã chín mọng rồi! Con hãy bấm nút Thu Hoạch để nhận 10 ngôi sao nhé!`
+                : `${pType.name} đang ở cấp ${stage} trên 5. Con hãy hoàn thành thêm việc tốt để tưới nước cho cây nhé!`;
+            showToast(`${pType.icon} ${msg}`, 'bg-emerald-600');
+            speakVietnameseText(msg);
         }
 
         function triggerWateringAnimation() {
@@ -1684,7 +2822,6 @@
             document.getElementById('plant-exp-text').textContent = `💧 ${exp} / 12 giọt nước`;
             document.getElementById('plant-exp-bar').style.width = `${Math.min(100, Math.round((exp / 12) * 100))}%`;
 
-            // Bộ chọn loại cây
             const selectorEl = document.getElementById('plant-selector-container');
             selectorEl.innerHTML = Object.values(PLANT_TYPES).map(pt => {
                 const active = pt.id === pType.id;
@@ -1693,12 +2830,11 @@
                         active ? 'bg-emerald-100 border-emerald-500 shadow-sm scale-105' : 'bg-white border-emerald-100 hover:bg-emerald-50'
                     }">
                         <span class="text-xl">${pt.icon}</span>
-                        <span class="text-[11px] font-extrabold text-slate-700">${pt.shortName}</span>
+                        <span class="text-[11px] font-extrabold text-slate-700 truncate max-w-full">${pt.shortName}</span>
                     </button>
                 `;
             }).join('');
 
-            // Gợi ý cấp tiếp theo & Nút thu hoạch
             const nextHint = document.getElementById('plant-next-hint');
             const harvestBtn = document.getElementById('harvest-plant-btn');
             if (stage === 5) {
@@ -1713,10 +2849,8 @@
                 harvestBtn.classList.remove('flex');
             }
 
-            // Vẽ SVG Cây
             document.getElementById('garden-svg-container').innerHTML = buildPlantSVG(pType.id, stage);
 
-            // Bộ sưu tập cây đã thu hoạch
             const harvestedList = state.harvestedPlants || [];
             document.getElementById('harvested-count-badge').textContent = `${harvestedList.length} cây`;
             const harvContainer = document.getElementById('harvested-plants-container');
@@ -1734,9 +2868,21 @@
         }
 
         function buildPlantSVG(type, stage) {
+            const potColors = {
+                strawberry: { body: '#f97316', rim: '#fb923c', stroke: '#c2410c' },
+                sunflower: { body: '#eab308', rim: '#facc15', stroke: '#a16207' },
+                apple: { body: '#dc2626', rim: '#f87171', stroke: '#991b1b' },
+                sakura: { body: '#ec4899', rim: '#f472b6', stroke: '#be185d' },
+                watermelon: { body: '#10b981', rim: '#34d399', stroke: '#047857' },
+                orange: { body: '#ea580c', rim: '#fb923c', stroke: '#9a3412' },
+                lotus: { body: '#0284c7', rim: '#38bdf8', stroke: '#0369a1' },
+                rainbow_rose: { body: '#8b5cf6', rim: '#a78bfa', stroke: '#5b21b6' }
+            };
+            const pc = potColors[type] || potColors.strawberry;
+
             const potSVG = `
-                <polygon points="65,145 135,145 125,188 75,188" fill="#f97316" stroke="#c2410c" stroke-width="3"/>
-                <rect x="58" y="135" width="84" height="12" rx="5" fill="#fb923c" stroke="#c2410c" stroke-width="3"/>
+                <polygon points="65,145 135,145 125,188 75,188" fill="${pc.body}" stroke="${pc.stroke}" stroke-width="3"/>
+                <rect x="58" y="135" width="84" height="12" rx="5" fill="${pc.rim}" stroke="${pc.stroke}" stroke-width="3"/>
                 <ellipse cx="100" cy="145" rx="32" ry="5" fill="#78350f"/>
             `;
 
@@ -1790,10 +2936,9 @@
                 `;
             }
 
-            // Stage 5: Cây trưởng thành rực rỡ theo từng loại
             const fruitEmoji = PLANT_TYPES[type] ? PLANT_TYPES[type].icon : '🍓';
-            const canopyColor = type === 'sakura' ? '#f9a8d4' : '#22c55e';
-            const canopyStroke = type === 'sakura' ? '#db2777' : '#166534';
+            const canopyColor = type === 'sakura' ? '#f9a8d4' : type === 'lotus' ? '#fbcfe8' : type === 'rainbow_rose' ? '#ddd6fe' : '#22c55e';
+            const canopyStroke = type === 'sakura' || type === 'lotus' ? '#db2777' : type === 'rainbow_rose' ? '#7c3aed' : '#166534';
 
             return `
                 <svg viewBox="0 0 200 200" class="w-full h-full">
@@ -1805,6 +2950,7 @@
                     <text x="74" y="84" text-anchor="middle" font-size="22">${fruitEmoji}</text>
                     <text x="126" y="84" text-anchor="middle" font-size="22">${fruitEmoji}</text>
                     <text x="100" y="56" text-anchor="middle" font-size="25">${fruitEmoji}</text>
+                    <text x="100" y="92" text-anchor="middle" font-size="18">✨</text>
                 </svg>
             `;
         }
@@ -1823,6 +2969,7 @@
             });
             state.stars += 10;
             state.currentPlant.exp = 0;
+            state.plantGeneration = (Number(state.plantGeneration) || 0) + 1;
 
             addActivityLog(pType.icon, `Thu hoạch thành công ${pType.name}!`, '+10 ⭐');
             createSafetySnapshot(`Sau khi thu hoạch ${pType.name}`);
@@ -1838,37 +2985,68 @@
             const container = document.getElementById('weekly-chart-container');
             if (!container) return;
             const todayIdx = getTodayMondayBasedIndex();
+            const totalHabitsCount = state.habits.length || 6;
+
+            let sumPct = 0;
+            let activeDaysCount = 0;
+            for (let i = 0; i <= todayIdx; i++) {
+                const item = state.weeklyHistory[i];
+                if (item) {
+                    sumPct += (Number(item.percent) || 0);
+                    activeDaysCount++;
+                }
+            }            const avgWeekPct = activeDaysCount > 0 ? Math.round(sumPct / activeDaysCount) : 0;
+            const avgBadge = document.getElementById('weekly-average-badge');
+            if (avgBadge) {
+                avgBadge.textContent = `Trung bình tuần: ${avgWeekPct}%`;
+            }
 
             container.innerHTML = state.weeklyHistory.map((item, idx) => {
                 const isToday = idx === todayIdx;
-                const pct = Math.min(100, Math.max(0, Number(item.percent) || 0));
-                const isStreakQualified = pct >= 70;
-                const barColor = isStreakQualified
-                    ? 'bg-gradient-to-t from-emerald-500 to-teal-400'
-                    : pct > 0
-                        ? 'bg-gradient-to-t from-amber-400 to-yellow-300'
-                        : 'bg-slate-200';
+                const isFutureDay = idx > todayIdx;
+                const pct = isFutureDay ? 0 : Math.min(100, Math.max(0, Number(item.percent) || 0));
+                const isStreakQualified = isStreakThresholdMet(pct);
+                const doneTasks = item.done !== undefined ? item.done : Math.round((pct / 100) * totalHabitsCount);
+                const totalTasks = item.total || totalHabitsCount;
+
+                const barColor = isFutureDay
+                    ? 'bg-slate-100'
+                    : isStreakQualified
+                        ? 'bg-gradient-to-t from-emerald-500 via-emerald-400 to-teal-300'
+                        : pct > 0
+                            ? 'bg-gradient-to-t from-amber-400 to-yellow-300'
+                            : 'bg-slate-200';
 
                 return `
                     <div class="flex flex-col items-center">
-                        <div class="text-[10px] font-extrabold ${isStreakQualified ? 'text-emerald-600' : 'text-slate-400'} mb-1">
-                            ${pct}%
+                        <div class="text-[10px] sm:text-[11px] font-extrabold ${
+                            isFutureDay ? 'text-slate-300' : isStreakQualified ? 'text-emerald-600' : 'text-amber-600'
+                        } mb-0.5 flex items-center gap-0.5">
+                            <span>${isFutureDay ? '-' : pct + '%'}</span>
+                            ${!isFutureDay && isStreakQualified ? '<span>🔥</span>' : ''}
                         </div>
-                        <div class="w-8 sm:w-10 h-28 bg-white rounded-2xl border-2 ${isToday ? 'border-pink-400 shadow-sm' : 'border-slate-200'} p-1 flex items-end overflow-hidden relative">
-                            <div class="w-full rounded-xl transition-all duration-500 ${barColor}" style="height: ${Math.max(8, pct)}%"></div>
+                        <div class="text-[9px] font-bold text-slate-400 mb-1">
+                            ${isFutureDay ? 'Chưa tới' : `${doneTasks}/${totalTasks} việc`}
                         </div>
-                        <div class="mt-1.5 text-xs font-extrabold ${isToday ? 'text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full' : 'text-slate-600'}">
+                        <div class="w-8 sm:w-11 h-28 bg-white rounded-2xl border-2 ${
+                            isToday ? 'border-pink-500 shadow-md ring-2 ring-pink-200' : 'border-slate-200'
+                        } p-1 flex items-end overflow-hidden relative">
+                            <div class="w-full rounded-xl transition-all duration-500 ${barColor}" style="height: ${isFutureDay ? 4 : Math.max(8, pct)}%"></div>
+                        </div>
+                        <div class="mt-1.5 text-xs font-extrabold ${
+                            isToday ? 'text-white bg-pink-500 px-2 py-0.5 rounded-full shadow-sm' : 'text-slate-600'
+                        }">
                             ${item.day}
                         </div>
-                        <div class="text-[10px] font-bold text-amber-500 mt-0.5">
-                            ${item.stars > 0 ? `⭐${item.stars}` : '•'}
+                        <div class="text-[10px] font-extrabold text-amber-500 mt-0.5">
+                            ${!isFutureDay && item.stars > 0 ? `⭐${item.stars}` : '•'}
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // ================= 4. CỬA HÀNG ĐỔI QUÀ CÙNG BỐ MẸ =================
+        // ================= 4. CỬA HÀNG ĐỔI QUÀ CÙNG BỐ MẸ (ĐÃ BỔ SUNG CHỈNH SỬA QUÀ & SỐ SAO QUY ĐỔI) =================
         function renderRewards() {
             const container = document.getElementById('rewards-list-container');
             const historyEl = document.getElementById('redeemed-history-container');
@@ -1886,7 +3064,7 @@
                                 <div class="text-xs font-extrabold text-amber-600 mt-0.5">⭐ ${r.cost} Sao</div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
+                        <div class="flex items-center gap-1 shrink-0">
                             <button onclick="redeemReward('${r.id}')" ${!canAfford ? 'disabled' : ''} class="btn-3d px-3 py-2 rounded-xl font-extrabold text-xs ${
                                 canAfford
                                     ? 'bg-amber-400 hover:bg-amber-500 text-slate-900'
@@ -1895,6 +3073,9 @@
                                 ${canAfford ? 'Đổi Quà 🎁' : `Thiếu ${r.cost - state.stars}⭐`}
                             </button>
                             ${isParentMode ? `
+                                <button onclick="openRewardModal('${r.id}')" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center text-xs" title="Sửa món quà & số sao quy đổi">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
                                 <button onclick="deleteReward('${r.id}')" class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs" title="Xóa quà này">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
@@ -1940,6 +3121,7 @@
             createSafetySnapshot(`Sau khi đổi quà: ${reward.title}`);
             playSoundEffect('levelup');
             triggerConfetti('big');
+            speakVietnameseText(`Chúc mừng ${state.childName} đã đổi thành công món quà: ${reward.title}!`);
 
             document.getElementById('redeem-modal-icon').textContent = reward.icon || '🎁';
             document.getElementById('redeem-modal-title').textContent = reward.title;
@@ -1956,14 +3138,35 @@
             modal.classList.remove('flex');
         }
 
-        function openRewardModal() {
+        function openRewardModal(editId = null) {
             if (!isParentMode) {
-                handleParentProtectedAction(() => openRewardModal());
+                handleParentProtectedAction(() => openRewardModal(editId));
                 return;
             }
-            document.getElementById('reward-title-input').value = '';
-            document.getElementById('reward-cost-input').value = '15';
             const modal = document.getElementById('reward-modal');
+            const titleEl = document.getElementById('reward-modal-title');
+            const idInput = document.getElementById('edit-reward-id');
+            const titleInput = document.getElementById('reward-title-input');
+            const costInput = document.getElementById('reward-cost-input');
+            const iconInput = document.getElementById('reward-icon-input');
+
+            if (editId) {
+                const found = state.rewards.find(r => r.id === editId);
+                if (found) {
+                    titleEl.textContent = '✏️ Chỉnh Sửa Quà & Số Sao Quy Đổi';
+                    idInput.value = found.id;
+                    titleInput.value = found.title;
+                    costInput.value = String(found.cost || 15);
+                    iconInput.value = found.icon || '🎁';
+                }
+            } else {
+                titleEl.textContent = '🎁 Thêm Món Quà Thưởng Mới';
+                idInput.value = '';
+                titleInput.value = '';
+                costInput.value = '15';
+                iconInput.value = '🍦';
+            }
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
@@ -1975,6 +3178,7 @@
         }
 
         function saveReward() {
+            const idVal = document.getElementById('edit-reward-id').value;
             const titleVal = document.getElementById('reward-title-input').value.trim();
             const costVal = Math.max(1, Number(document.getElementById('reward-cost-input').value) || 15);
             const iconVal = document.getElementById('reward-icon-input').value || '🎁';
@@ -1984,15 +3188,26 @@
                 return;
             }
 
-            state.rewards.push({
-                id: 'r_' + Date.now(),
-                title: titleVal,
-                cost: costVal,
-                icon: iconVal
-            });
+            if (idVal) {
+                const found = state.rewards.find(r => r.id === idVal);
+                if (found) {
+                    createSafetySnapshot(`Trước khi sửa quà: ${found.title}`);
+                    found.title = titleVal;
+                    found.cost = costVal;
+                    found.icon = iconVal;
+                }
+                showToast('✅ Đã cập nhật thông tin món quà & số sao quy đổi!', 'bg-emerald-600');
+            } else {
+                state.rewards.push({
+                    id: 'r_' + Date.now(),
+                    title: titleVal,
+                    cost: costVal,
+                    icon: iconVal
+                });
+                showToast('🎁 Đã thêm món quà mới vào cửa hàng!', 'bg-amber-500');
+            }
 
             closeRewardModal();
-            showToast('🎁 Đã thêm món quà mới vào cửa hàng!', 'bg-amber-500');
             renderAll();
         }
 
@@ -2060,6 +3275,7 @@
                 handleParentProtectedAction(() => openParentToolsModal());
                 return;
             }
+            loadSystemVoices();
             renderSnapshotsList();
             const confirmInput = document.getElementById('danger-confirm-input');
             const pinInput = document.getElementById('danger-pin-input');
@@ -2090,23 +3306,35 @@
 
         function startNewDayManual() {
             createSafetySnapshot('Trước khi chuyển sang ngày mới');
+            const todayStr = getTodayDateString();
+            // Reconcile current progress before clearing it; the calendar day is not advanced
+            // by this button, so a streak can be credited at most once for today's date.
+            evaluateRealtimeTodayStreak();
             const total = state.habits.length;
             const done = state.habits.filter(h => h.completed).length;
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            const qualifies = total > 0 && isStreakThresholdMet(pct);
 
-            if (pct >= 70) {
-                state.streak += 1;
+            if (qualifies) {
+                if (state.lastStreakCreditedDate !== todayStr) {
+                    state.streak = (state.streak || 0) + 1;
+                    state.lastStreakCreditedDate = todayStr;
+                }
+                state.streakLockedDate = todayStr;
                 if (state.streak > (state.bestStreak || 0)) state.bestStreak = state.streak;
-            } else {
-                state.streak = 1;
+            } else if (state.lastStreakCreditedDate === todayStr && state.streakLockedDate !== todayStr) {
+                state.streak = Math.max(0, (state.streak || 0) - 1);
+                state.lastStreakCreditedDate = '';
             }
 
+            // Keep the reward ledger for the date: manually clearing the list must not let
+            // the same habit repeatedly generate stars, water or pet treats on that date.
             state.habits.forEach(h => h.completed = false);
-            state.lastActiveDate = getTodayDateString();
-            addActivityLog('🌅', `Bắt đầu ngày mới (Kết quả phiên trước: ${pct}%)`, `🔥 ${state.streak} ngày`);
+            state.lastActiveDate = todayStr;
+            addActivityLog('🌅', `Làm mới danh sách trong ngày ${todayStr} (Phiên trước: ${pct}%)`, `🔥 ${state.streak} ngày`);
             closeParentToolsModal();
             playSoundEffect('complete');
-            showToast('🌅 Đã làm mới danh sách công việc cho ngày mới!', 'bg-emerald-600');
+            showToast('🌅 Đã làm mới danh sách. Mỗi việc vẫn chỉ nhận thưởng một lần trong ngày nhé!', 'bg-emerald-600');
             renderAll();
         }
 
@@ -2167,8 +3395,11 @@
             }
             try {
                 const parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !Array.isArray(parsed.habits) || !Number.isFinite(Number(parsed.stars))) {
+                    throw new Error('Cấu trúc bản sao lưu không hợp lệ');
+                }
                 createSafetySnapshot('Trước khi khôi phục bằng mã JSON');
-                state = { ...getDefaultState(), ...parsed };
+                replaceStateData(parsed);
                 saveState();
                 closeParentToolsModal();
                 playSoundEffect('levelup');
@@ -2189,7 +3420,7 @@
                 return;
             }
             createSafetySnapshot('🚨 Bản lưu khẩn cấp trước khi Nạp dữ liệu mẫu');
-            state = getDefaultState();
+            replaceStateData(getDefaultState());
             state.currentPlant.exp = 11;
             closeParentToolsModal();
             playSoundEffect('levelup');
@@ -2210,20 +3441,27 @@
             const savedPin = state.parentPin || '1234';
             const savedArchives = state.dailyArchives || [];
             localStorage.removeItem(STORAGE_KEY);
-            state = getDefaultState();
+            replaceStateData(getDefaultState());
             state.parentPin = savedPin;
             state.dailyArchives = savedArchives;
             state.stars = 0;
-            state.streak = 1;
+            state.streak = 0;
+            state.lastStreakCreditedDate = '';
             state.totalTasksCompleted = 0;
             state.currentPlant.exp = 0;
             state.harvestedPlants = [];
             state.redeemedHistory = [];
+            state.penaltyHistory = [];
             state.activityLogs = [
                 { id: 'init', time: 'Hôm nay', icon: '🌱', text: 'Khởi tạo khu vườn mới (Có thể khôi phục dữ liệu cũ trong Góc của Bố)', badge: '' }
             ];
             state.habits.forEach(h => h.completed = false);
-            state.weeklyHistory.forEach(w => { w.percent = 0; w.stars = 0; });
+            state.habitRewardLedger = { [getTodayDateString()]: {} };
+            state.petTreatInventory = [];
+            state.petTreats = 0;
+            state.plantGeneration = (Number(state.plantGeneration) || 0) + 1;
+            state.streakLockedDate = '';
+            state.weeklyHistory.forEach(w => { w.percent = 0; w.stars = 0; w.done = 0; });
             closeParentToolsModal();
             showToast('🔄 Đã đặt lại! Nếu bấm nhầm, Bố vẫn có thể lấy lại trong mục Điểm Khôi Phục!', 'bg-rose-500');
             renderAll();
@@ -2252,7 +3490,7 @@
                 archiveEl.innerHTML = archives.map(a => `
                     <div class="shrink-0 w-28 p-2.5 rounded-2xl border-2 ${a.isToday ? 'bg-emerald-50 border-emerald-300' : 'bg-slate-50 border-slate-200'} text-center">
                         <div class="text-[11px] font-extrabold ${a.isToday ? 'text-emerald-700' : 'text-slate-600'}">${a.date}</div>
-                        <div class="text-base font-extrabold text-slate-800 my-0.5">${a.pct}%</div>
+                        <div class="text-base font-extrabold text-slate-800 my-0.5">${a.pct}% ${a.pct >= 70 ? '🔥' : ''}</div>
                         <div class="text-[10px] font-bold text-slate-500">${a.done}/${a.total} việc</div>
                     </div>
                 `).join('');
@@ -2261,18 +3499,21 @@
             if (logs.length === 0) {
                 listEl.innerHTML = `<div class="text-center py-8 text-slate-400 font-bold text-sm">Chưa có hoạt động nào được ghi lại.</div>`;
             } else {
-                listEl.innerHTML = logs.map(item => `
-                    <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span class="text-2xl shrink-0">${item.icon || '🌟'}</span>
-                            <div class="min-w-0">
-                                <div class="text-xs sm:text-sm font-extrabold text-slate-800 truncate">${item.text}</div>
-                                <div class="text-[11px] font-semibold text-slate-400">${item.time}</div>
+                listEl.innerHTML = logs.map(item => {
+                    const isMinus = String(item.badge || '').startsWith('-');
+                    return `
+                        <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <span class="text-2xl shrink-0">${item.icon || '🌟'}</span>
+                                <div class="min-w-0">
+                                    <div class="text-xs sm:text-sm font-extrabold text-slate-800 truncate">${item.text}</div>
+                                    <div class="text-[11px] font-semibold text-slate-400">${item.time}</div>
+                                </div>
                             </div>
+                            ${item.badge ? `<span class="text-xs font-extrabold px-2.5 py-1 rounded-full ${isMinus ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'} shrink-0">${item.badge}</span>` : ''}
                         </div>
-                        ${item.badge ? `<span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 shrink-0">${item.badge}</span>` : ''}
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             modal.classList.remove('hidden');
@@ -2343,6 +3584,7 @@
                         triggerWateringAnimation();
                         playSoundEffect('levelup');
                         triggerConfetti('big');
+                        speakVietnameseText(`Giỏi quá! ${state.childName} đã hoàn thành thời gian tập trung và nhận được 1 giọt nước thần kỳ!`);
                         showToast('⏳ Giỏi quá! Con đã tập trung hoàn thành thời gian và nhận +1 💧 tưới cây!', 'bg-amber-500');
                         renderAll();
                     }
@@ -2483,20 +3725,7 @@
             showToast('🔐 Đã đổi mã PIN mới thành công!', 'bg-emerald-600');
         }
 
-        // ================= 9. TƯƠNG TÁC CHO BÉ: GIỌNG ĐỌC, BẠN THÚ CƯNG, RƯƠNG KHO BÁU & NHÃN DÁN =================
-        function speakVietnameseText(text) {
-            try {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const utter = new SpeechSynthesisUtterance(text);
-                    utter.lang = 'vi-VN';
-                    utter.rate = 0.95;
-                    utter.pitch = 1.1;
-                    window.speechSynthesis.speak(utter);
-                }
-            } catch (e) {}
-        }
-
+        // ================= 9. TƯƠNG TÁC CHO BÉ: GIỌNG ĐỌC, BẠN THÚ CƯNG, ĐỐ VUI, RƯƠNG KHO BÁU & NHÃN DÁN =================
         function speakDadMessage() {
             playSoundEffect('complete');
             const msg = `Bố nhắn gửi ${state.childName || 'con gái'}: ${state.dadMessage}`;
@@ -2535,6 +3764,29 @@
             }
             playSoundEffect('complete');
             speakVietnameseText(randomQuote);
+        }
+
+        function feedCompanionPet() {
+            const petKey = state.selectedPet && GARDEN_PETS[state.selectedPet] ? state.selectedPet : 'bunny';
+            const petObj = GARDEN_PETS[petKey];
+            const inventory = ensurePetTreatInventory();
+            if (inventory.length <= 0) {
+                playSoundEffect('uncheck');
+                showToast('🍓 Hết dâu tây rồi! Con hãy hoàn thành thêm việc tốt hoặc giải Đố Vui để nhận thêm nhé!', 'bg-amber-500');
+                return;
+            }
+            // Spend the oldest token first. Legacy/quiz treats are normally consumed before
+            // the newest habit token, leaving recent habit rewards reversible when possible.
+            inventory.shift();
+            state.petTreats = inventory.length;
+            state.petAffection = Math.min(100, (state.petAffection || 90) + 5);
+            const speechEl = document.getElementById('companion-speech-text');
+            const msg = `Măm măm! ${petObj.name} cảm ơn ${state.childName} nhiều lắm! Dâu tây ngọt tuyệt vời!`;
+            if (speechEl) speechEl.textContent = `"${msg}"`;
+            playSoundEffect('levelup');
+            triggerConfetti('normal');
+            speakVietnameseText(msg);
+            renderAll();
         }
 
         function renderDailyMysteryChest() {
@@ -2658,19 +3910,96 @@
             state.selectedPet = petId;
             saveState();
             playSoundEffect('complete');
+            speakVietnameseText(`Xin chào! Tớ là ${GARDEN_PETS[petId].name}, tớ sẽ đồng hành cùng ${state.childName} nhé!`);
             showToast(`🐾 Đã chọn Bạn ${GARDEN_PETS[petId].name} đồng hành cùng con!`, 'bg-pink-500');
             openStickerAlbumModal();
             renderAll();
         }
 
+        // ================= 10. CÚ THÔNG THÁI ĐỐ VUI (QUIZ MODAL) =================
+        function openQuizModal() {
+            const todayStr = getTodayDateString();
+            if (state.quizRewardDate !== todayStr) {
+                state.quizRewardDate = todayStr;
+                state.quizRewardCountToday = 0;
+            }
+            loadNextQuiz();
+            const modal = document.getElementById('quiz-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeQuizModal() {
+            const modal = document.getElementById('quiz-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function loadNextQuiz() {
+            currentQuizObj = QUIZ_QUESTIONS[Math.floor(Math.random() * QUIZ_QUESTIONS.length)];
+            document.getElementById('quiz-cat-badge').textContent = currentQuizObj.cat;
+            document.getElementById('quiz-question-box').textContent = currentQuizObj.q;
+            document.getElementById('quiz-quota-text').textContent = `Hôm nay đã nhận: ${state.quizRewardCountToday || 0}/3 phần thưởng`;
+
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = currentQuizObj.opts.map(opt => `
+                <button onclick="answerQuiz('${opt.replace(/'/g, "\\'")}')" class="btn-3d p-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 font-extrabold text-sm text-indigo-900">
+                    ${opt}
+                </button>
+            `).join('');
+        }
+
+        function speakCurrentQuiz() {
+            if (currentQuizObj) speakVietnameseText(currentQuizObj.q);
+        }
+
+        function answerQuiz(chosen) {
+            if (!currentQuizObj) return;
+            if (chosen === currentQuizObj.ans) {
+                state.quizzesSolved = (state.quizzesSolved || 0) + 1;
+                playSoundEffect('levelup');
+                triggerConfetti('normal');
+
+                if ((state.quizRewardCountToday || 0) < 3) {
+                    state.quizRewardCountToday = (state.quizRewardCountToday || 0) + 1;
+                    state.currentPlant.exp = Math.min(12, state.currentPlant.exp + 1);
+                    createPetTreatToken(`quiz:${getTodayDateString()}`);
+                    addActivityLog('🦉', `Giải đúng câu đố: ${currentQuizObj.q}`, '+1 💧, +1 🍓');
+                    triggerWateringAnimation();
+                    const msg = `Giỏi quá! Đáp án ${chosen} hoàn toàn chính xác! Con được thưởng 1 giọt nước và 1 quả dâu!`;
+                    speakVietnameseText(msg);
+                    showToast(`🦉 ${msg}`, 'bg-emerald-600');
+                } else {
+                    const msg = `Chính xác! Con đã nhận đủ 3 phần thưởng đố vui hôm nay rồi, con thông minh lắm!`;
+                    speakVietnameseText(msg);
+                    showToast(`🦉 ${msg}`, 'bg-indigo-600');
+                }
+                renderAll();
+                loadNextQuiz();
+            } else {
+                playSoundEffect('uncheck');
+                speakVietnameseText('Chưa đúng rồi, con suy nghĩ kỹ thêm một chút nhé!');
+                showToast('🤔 Chưa chính xác rồi, con thử chọn lại nhé!', 'bg-amber-500');
+            }
+        }
+
         // Khởi chạy ứng dụng khi tải trang
-        window.onload = function () {
+        window.onload = async function () {
+            await initPersistentVault();
             checkAutoNewDay();
-            initPersistentVault();
+            evaluateRealtimeTodayStreak();
+            loadSystemVoices();
             if (getSafetySnapshots().length === 0) {
                 createSafetySnapshot('Khởi tạo bản lưu an toàn đầu tiên');
             }
             renderAll();
+            // Keep the app's calendar day in sync even when the tab stays open overnight.
+            setInterval(() => {                if (state.lastActiveDate && state.lastActiveDate !== getTodayDateString()) {
+                    checkAutoNewDay();
+                    evaluateRealtimeTodayStreak();
+                    renderAll();
+                }
+            }, 60 * 1000);
         };
     </script>
 </body>
