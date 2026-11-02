@@ -1,10 +1,10 @@
-# 🌸 Khu Vườn Của Con — V7.1
+# 🌸 Khu Vườn Của Con — V7.2
 
 > **App theo dõi thói quen cho bé** — biến việc nhà, học bài, đọc sách thành hành trình chăm sóc khu vườn kỳ diệu. Một file HTML duy nhất, chạy offline, không cần tài khoản, không quảng cáo.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-7.1-pink?style=for-the-badge" alt="Version 7.1">
-  <img src="https://img.shields.io/badge/format%20version-5-purple?style=for-the-badge" alt="Format version 5">
+  <img src="https://img.shields.io/badge/version-7.2-pink?style=for-the-badge" alt="Version 7.2">
+  <img src="https://img.shields.io/badge/format%20version-6-purple?style=for-the-badge" alt="Format version 6">
   <img src="https://img.shields.io/badge/single--file-HTML-amber?style=for-the-badge" alt="Single file HTML">
   <img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="MIT License">
 </p>
@@ -24,13 +24,15 @@ Nên mình tự làm **1 file HTML duy nhất**:
 
 ---
 
-## 🎯 Tính năng nổi bật (V7.1)
+## 🎯 Tính năng nổi bật (V7.2)
 
 ### Cho bé
 - 📝 **Thói quen hằng ngày** chia 3 buổi (Sáng / Chiều / Tối)
 - 🌱 **18 loại cây** × 5 giai đoạn, SVG động có gradient + đổ bóng
 - 🐾 **16 bạn thú cưng** × 4 câu nói hài hước khích lệ
 - ✨ **Pet Evolution 3 Form** — Sơ sinh → Trưởng thành ⭐ → Thần thoại 👑
+- 🪄 **Khiên Phép Thuật (Magic Shield)** — Làm bài tập đặc biệt để bảo vệ Chuỗi ngày (Streak) khi lỡ không hoàn thành KPI.
+- 🌟 **Gương Mẫu Nhà Mình** — Bé giám sát thói quen của Bố Mẹ, đạt KPI thì tặng quà (5 Sao) để khích lệ.
 - 🏅 **32 nhãn dán** thành tựu (Ngày Hoàn Hảo, Thợ Săn Kho Báu,…)
 - 🦉 **Cú Thông Thái** với 114 câu đố 10 chủ đề + giải thích đáp án
 - ⏳ **Đồng hồ cát** focus 5/10/15/20 phút
@@ -40,6 +42,7 @@ Nên mình tự làm **1 file HTML duy nhất**:
 
 ### Cho Bố Mẹ
 - 🔐 **Khóa PIN** + tự khóa sau 5 phút
+- ⏪ **Sửa Lỗi Quá Khứ** — Chọn ngày trong quá khứ (7 ngày gần nhất) để tích bù việc bé quên, tự động tính lại Streak chuẩn xác.
 - 👨‍👩‍👧‍👦 **Multi-child** — tối đa 4 bé, hồ sơ độc lập
 - 🔥 **Ngưỡng Streak tùy chỉnh** 30–95% (riêng từng bé)
 - 🎯 **Slot Pet Evolution** 1–16 (mặc định 5)
@@ -48,7 +51,6 @@ Nên mình tự làm **1 file HTML duy nhất**:
 - 💾 **Backup 3 tầng** (LocalStorage + Mirror + IndexedDB)
 - 🛡️ **Snapshot tự động** — khôi phục bất kỳ lúc nào
 - ♿ **Font scale 3 cỡ + Reduced motion** cho bé nhạy cảm
-- 📥 **Import/Export JSON** kho câu hỏi
 
 ---
 
@@ -94,84 +96,3 @@ Nên mình tự làm **1 file HTML duy nhất**:
 ---
 
 ## 📂 Cấu trúc repo
-khuvuoncuabe/
-├── index.html ← File V7.1 (mở là chạy)
-├── README.md ← File này
-├── CHANGELOG.md ← Lịch sử version
-├── LICENSE ← Giấy phép MIT
-├── .gitignore ← Loại trừ file rác
-└── versions/ ← Lưu lịch sử các bản cũ
-├── v5.3-final.html
-├── v6.0-final.html
-├── v6.2-final.html
-├── v6.3-final.html
-└── v7.1-final.html
-
----
-
-## 🗺️ Lộ trình
-
-| Phiên bản | Nội dung | Trạng thái |
-|---|---|---|
-| V5.3 | App cơ bản cho 1 bé | ✅ |
-| V6.0 | 18 cây, 16 pets, 114 câu hỏi | ✅ |
-| V6.2 | Multi-child 4 bé | ✅ |
-| V6.3 | Patch ổn định | ✅ |
-| **V7.1** | **Pet Evolution 3 Form** | ✅ |
-| V7.2 | Weekly Report | ⏳ Sắp tới |
-| V7.3 | Bé tặng quà bố mẹ | ⏳ |
-| V8 | Story mode + Time capsule | 💭 |
-
----
-
-## 🛠️ Phát triển
-
-App là **1 file HTML duy nhất** — không cần build, không cần npm, không cần bundler.
-
-### Muốn sửa?
-1. Mở `index.html` bằng VS Code hoặc bất kỳ editor
-2. Sửa code → lưu → reload trình duyệt (F5)
-3. **Không cần** compile
-
-### Muốn thêm câu hỏi đố vui?
-- Dùng UI: Góc Bố Mẹ → Import JSON
-- Hoặc sửa mảng `DEFAULT_QUIZ_QUESTIONS` trong code
-
-### Muốn thêm cây / pet mới?
-- Sửa `PLANT_TYPES` hoặc `GARDEN_PETS` trong object constant
-- Không cần sửa logic
-
----
-
-## 🤝 Đóng góp
-
-Đây là project cá nhân cho gia đình, nhưng:
-- 🐛 **Báo bug** — mở Issue
-- 💡 **Gợi ý tính năng** — mở Issue với tag `enhancement`
-- 🔧 **Pull request** — luôn welcome, đặc biệt về SVG cây/pet
-
----
-
-## 📜 Giấy phép
-
-MIT License — xem file [LICENSE](LICENSE).
-
-**Được phép**: Dùng, sửa, chia sẻ, bán (nếu muốn) — miễn giữ copyright notice.
-
----
-
-## 💖 Credits
-
-- **Font**: [Quicksand](https://fonts.google.com/specimen/Quicksand) — Google Fonts
-- **Icons**: [Font Awesome 6](https://fontawesome.com/)
-- **CSS Framework**: [Tailwind CSS](https://tailwindcss.com/)
-- **Confetti**: [canvas-confetti](https://github.com/catdad/canvas-confetti)
-- **TTS**: Google Translate TTS (fallback) + Web Speech API (local)
-
----
-
-<p align="center">
-  Made with ❤️ for bé yêu
-  <br>
-  🌸 🌱 🐾 🦉 ⭐
-</p>
