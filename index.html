@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Khu Vườn Của Con 🌸 — V7.1 (2026-10-26)</title>
+<title>Khu Vườn Của Con 🌸 — V7.2 (2026-10-26)</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Khu Vườn Của Con">
@@ -30,12 +30,12 @@ body.theme-evening{background:linear-gradient(160deg,#ede9fe 0%,#fce7f3 50%,#e0e
 @keyframes shakeWarn{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @keyframes form3Glow{0%,100%{box-shadow:0 0 22px 6px rgba(168,85,247,.55);border-color:#a855f7}50%{box-shadow:0 0 32px 10px rgba(168,85,247,.75);border-color:#c084fc}}
 @keyframes form2Glow{0%,100%{box-shadow:0 0 14px 3px rgba(251,191,36,.5)}50%{box-shadow:0 0 20px 5px rgba(251,191,36,.7)}}
+@keyframes magicSparkle{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
 .plant-float{animation:floatSlow 3.4s ease-in-out infinite}
 .pop-anim{animation:pop .35s ease-out}
 .shake-anim{animation:shakeWarn .35s ease-in-out}
 .water-drop-anim{animation:dropFall .95s ease-in forwards}
 .streak-fire-glow{animation:firePulse 1.5s ease-in-out infinite}
-/* V7.1: Pet form styles */
 .companion-form-2{box-shadow:0 0 14px 3px rgba(251,191,36,.5);border-color:#fbbf24!important;animation:form2Glow 2.5s ease-in-out infinite}
 .companion-form-3{box-shadow:0 0 22px 6px rgba(168,85,247,.55);border-color:#a855f7!important;animation:form3Glow 2s ease-in-out infinite}
 .pet-form-badge{position:absolute;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
@@ -132,6 +132,13 @@ body.no-fontawesome .fa-solid::before,body.no-fontawesome .fas::before{content:a
 <div>
 <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><span>Chuỗi Ngày</span><span id="streak-today-dot" class="w-2 h-2 rounded-full bg-slate-300"></span></div>
 <div class="text-lg sm:text-xl font-extrabold text-orange-500"><span id="streak-count">5</span> ngày</div>
+</div>
+</div>
+<div id="magic-shield-indicator" class="hidden cursor-pointer bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3.5 py-2 rounded-2xl shadow-[0_0_15px_rgba(168,85,247,0.6)] border-2 border-yellow-400 flex items-center gap-2 hover:scale-105 transition" onclick="openMagicChallengeModal()">
+<span class="text-2xl animate-bounce">🪄</span>
+<div class="text-left">
+<div class="text-[10px] font-bold uppercase tracking-wider text-purple-200">Cứu Streak</div>
+<div class="text-xs font-extrabold text-white">Phép Thuật</div>
 </div>
 </div>
 <div id="star-wallet-card" class="bg-white px-3.5 py-2 rounded-2xl border-2 border-amber-200 shadow-sm flex items-center gap-2 transition">
@@ -234,6 +241,18 @@ body.no-fontawesome .fa-solid::before,body.no-fontawesome .fas::before{content:a
 </div>
 <div id="penalty-history-container" class="flex flex-wrap gap-2"></div>
 </div>
+</div>
+
+<!-- GƯƠNG MẪU NHÀ MÌNH (Dành cho Bé giám sát Bố Mẹ) -->
+<div class="kid-card p-5 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+<div class="flex items-center justify-between mb-3">
+<div>
+<h2 class="text-lg sm:text-xl font-extrabold text-amber-800 flex items-center gap-2"><span>🌟</span> Gương Mẫu Nhà Mình</h2>
+<p class="text-xs text-amber-700 font-medium">Bé giám sát thói quen của Bố Mẹ!</p>
+</div>
+<span class="text-[11px] text-amber-600 font-bold bg-white px-2 py-1 rounded-lg border border-amber-200">Tích cực cùng con</span>
+</div>
+<div id="child-parent-habits-view" class="space-y-3"></div>
 </div>
 
 <div class="kid-card p-5 sm:p-6">
@@ -398,9 +417,62 @@ body.no-fontawesome .fa-solid::before,body.no-fontawesome .fas::before{content:a
 </div>
 </div>
 
+<!-- V7.2: MODAL SỬA LỖI QUÁ KHỨ -->
+<div id="past-day-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="kid-card max-w-md w-full p-6 bg-white animate-[pop_0.25s_ease-out]">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-extrabold text-slate-800">⏪ Sửa Lỗi Quá Khứ</h3>
+            <button onclick="closePastDayModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button>
+        </div>
+        <p class="text-xs text-slate-500 font-semibold mb-3">Chọn ngày bị bỏ lỡ để tích lại và khôi phục Streak.</p>
+        
+        <div class="mb-4">
+            <label class="block text-xs font-extrabold text-slate-600 uppercase mb-1">Chọn ngày:</label>
+            <select id="past-date-select" onchange="loadPastDayData()" class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 font-bold text-sm bg-white"></select>
+        </div>
+
+        <div id="past-habits-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+            <!-- Render dynamically -->
+        </div>
+
+        <div class="mt-4 flex justify-end gap-2">
+            <button onclick="closePastDayModal()" class="px-4 py-2 rounded-xl font-bold text-slate-500 hover:bg-slate-100 text-sm">Hủy</button>
+            <button onclick="savePastDayData()" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-5 py-2.5 rounded-xl text-sm">Lưu & Tính Lại</button>
+        </div>
+    </div>
+</div>
+
+<!-- V7.2: MODAL PHÉP THUẬT (MAGIC CHALLENGE) -->
+<div id="magic-challenge-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="kid-card max-w-md w-full p-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white animate-[pop_0.25s_ease-out] border-4 border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.5)] relative overflow-hidden">
+        <!-- Magic stars background -->
+        <div class="absolute inset-0 opacity-30 pointer-events-none" style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+        <div class="relative z-10 text-center">
+            <div class="text-5xl mb-2 animate-bounce">🪄</div>
+            <h3 class="text-2xl font-extrabold text-yellow-400 font-serif tracking-widest" style="text-shadow: 0 0 10px rgba(250, 204, 21, 0.8);">THỬ THÁCH PHÙ THỦY</h3>
+            <p class="text-xs text-purple-200 mt-1 mb-4">Vượt qua thử thách để nhận <strong>Khiên Bảo Vệ Streak</strong>!</p>
+            
+            <div id="magic-challenge-content" class="bg-white/10 rounded-2xl p-4 border border-purple-400/50 mb-4 text-left">
+                <!-- Question -->
+            </div>
+            
+            <div id="magic-answer-box" class="space-y-3">
+                <input type="text" id="magic-answer-input" placeholder="Nhập đáp án..." class="w-full px-4 py-2 rounded-xl bg-white/20 border-2 border-purple-400 text-white placeholder-purple-300 font-bold text-center focus:outline-none focus:border-yellow-400 transition">
+                <button onclick="submitMagicAnswer()" class="w-full btn-3d bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-900 font-extrabold py-3 rounded-xl text-sm shadow-[0_0_15px_rgba(250,204,21,0.5)]">Nộp Bài 🦅</button>
+            </div>
+            
+            <div id="magic-waiting-box" class="hidden bg-emerald-900/50 rounded-xl p-3 border border-emerald-500 text-emerald-300 font-bold text-sm">
+                Đã trả lời đúng! Chờ Bố Mẹ xác nhận để nhận Khiên 🛡️
+            </div>
+            
+            <button onclick="closeMagicChallengeModal()" class="mt-4 text-xs text-purple-300 underline hover:text-white">Đóng</button>
+        </div>
+    </div>
+</div>
+
 <div id="parent-tools-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
 <div class="kid-card max-w-xl w-full p-6 bg-white animate-[pop_0.25s_ease-out] max-h-[90vh] overflow-y-auto">
-<div class="flex justify-between items-center mb-3"><h3 class="text-xl font-extrabold text-purple-700 flex items-center gap-2"><span>🛠️</span> Góc Quản Lý (V7.1)</h3><button onclick="closeParentToolsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button></div>
+<div class="flex justify-between items-center mb-3"><h3 class="text-xl font-extrabold text-purple-700 flex items-center gap-2"><span>🛠️</span> Góc Quản Lý (V7.2)</h3><button onclick="closeParentToolsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold">✕</button></div>
 <div class="space-y-4">
 
 <div id="storage-health-warning" class="hidden p-3 rounded-xl bg-amber-50 border-2 border-amber-300 text-xs">
@@ -423,10 +495,35 @@ body.no-fontawesome .fa-solid::before,body.no-fontawesome .fas::before{content:a
 <button id="add-child-btn" onclick="addNewChildProfile()" class="w-full btn-3d bg-rose-500 hover:bg-rose-600 text-white font-extrabold py-2.5 rounded-xl text-sm"><i class="fa-solid fa-plus" data-emoji="➕"></i> Thêm Bé Mới</button>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
 <button onclick="bonusWaterFromDad()" class="btn-3d p-3 rounded-2xl bg-sky-50 hover:bg-sky-100 border-2 border-sky-200 text-sky-800 font-extrabold text-xs flex flex-col items-center gap-1"><span class="text-2xl">💧</span><span>+2 Nước</span></button>
 <button onclick="closeParentToolsModal(); openEditDadMessageModal();" class="btn-3d p-3 rounded-2xl bg-pink-50 hover:bg-pink-100 border-2 border-pink-200 text-pink-800 font-extrabold text-xs flex flex-col items-center gap-1"><span class="text-2xl">👧🏻</span><span>Hồ sơ bé</span></button>
 <button onclick="startNewDayManual()" class="btn-3d p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 text-emerald-800 font-extrabold text-xs flex flex-col items-center gap-1"><span class="text-2xl">🌅</span><span>Ngày mới</span></button>
+<button onclick="openPastDayModal()" class="btn-3d p-3 rounded-2xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-800 font-extrabold text-xs flex flex-col items-center gap-1"><span class="text-2xl">⏪</span><span>Sửa Quá Khứ</span></button>
+</div>
+
+<!-- V7.2: PARENT HABITS (GƯƠNG MẪU) -->
+<div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-200 space-y-3">
+    <div class="flex items-center justify-between">
+        <div class="text-xs font-extrabold text-amber-900 flex items-center gap-1.5"><span>🌟</span> Gương Mẫu Nhà Mình (Bố/Mẹ)</div>
+        <button onclick="openParentHabitModal()" class="text-[11px] bg-amber-200 text-amber-800 px-2 py-1 rounded-lg font-bold">+ Thêm Thói Quen</button>
+    </div>
+    <p class="text-[11px] text-amber-700">Bé sẽ giám sát việc bạn hoàn thành thói quen này.</p>
+    <div id="parent-habits-list-container" class="space-y-2"></div>
+</div>
+
+<!-- V7.2: MAGIC SHIELD SETUP -->
+<div class="p-4 rounded-2xl bg-purple-50/80 border-2 border-purple-200 space-y-3">
+    <div class="flex items-center justify-between">
+        <div class="text-xs font-extrabold text-purple-900 flex items-center gap-1.5"><span>🪄</span> Nhiệm Vụ Phép Thuật (Khiên Streak)</div>
+    </div>
+    <p class="text-[11px] text-purple-700">Thiết lập câu hỏi để bé nhận Khiên bảo vệ Streak khi lỡ mất chuỗi.</p>
+    <div class="space-y-2">
+        <input type="text" id="magic-challenge-q" placeholder="Câu hỏi / Nhiệm vụ..." class="w-full px-3 py-1.5 rounded-xl border border-purple-300 text-xs font-bold bg-white">
+        <input type="text" id="magic-challenge-a" placeholder="Đáp án..." class="w-full px-3 py-1.5 rounded-xl border border-purple-300 text-xs font-bold bg-white">
+        <button onclick="saveMagicChallenge()" class="w-full btn-3d bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-2 rounded-xl text-xs">Lưu Nhiệm Vụ</button>
+    </div>
+    <div id="magic-status-box" class="text-[11px] font-bold p-2 rounded-lg bg-white border border-purple-200">Chưa thiết lập.</div>
 </div>
 
 <div class="p-4 rounded-2xl bg-violet-50/80 border-2 border-violet-200 space-y-3">
@@ -460,7 +557,6 @@ body.no-fontawesome .fa-solid::before,body.no-fontawesome .fas::before{content:a
 <div class="flex justify-between text-[10px] font-bold text-orange-600"><span>30% (Dễ)</span><span>70% (Chuẩn)</span><span>95% (Khó)</span></div>
 </div>
 
-<!-- 🆕 V7.1: PET YÊU THÍCH - TIẾN HÓA -->
 <div class="p-4 rounded-2xl bg-fuchsia-50/80 border-2 border-fuchsia-200 space-y-3">
 <div class="flex items-center justify-between">
 <div>
@@ -492,19 +588,6 @@ body.no-fontawesome .fa-solid::before,body.no-fontawesome .fas::before{content:a
 <div id="voice-engine-status-note" class="text-[11px] font-semibold text-sky-700">✅ Đang dùng Giọng Nữ Tiếng Việt.</div>
 </div>
 
-<div class="p-4 rounded-2xl bg-indigo-50/70 border-2 border-indigo-200 space-y-3">
-<div class="flex items-center justify-between"><div class="text-xs sm:text-sm font-extrabold text-indigo-900">💾 Sao Lưu Toàn Bộ (Tất cả bé)</div>
-<div class="flex gap-1.5"><button onclick="copyBackupData()" class="btn-3d bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold">📋 Chép</button><button onclick="downloadBackupFile()" class="btn-3d bg-white hover:bg-indigo-100 text-indigo-700 border border-indigo-300 px-3 py-1.5 rounded-xl text-xs font-bold">⬇️ Tải</button></div>
-</div>
-<div id="backup-size-hint" class="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg px-2 py-1 hidden"></div>
-<div class="flex gap-2"><input type="text" id="backup-json-input" placeholder="Dán mã sao lưu..." class="flex-1 px-3 py-1.5 rounded-xl border border-indigo-300 text-xs font-bold"><button onclick="restoreBackupData()" class="btn-3d bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-extrabold shrink-0">Khôi Phục</button></div>
-<div class="pt-2 border-t border-indigo-200/80">
-<div class="flex items-center justify-between mb-1"><span class="text-xs font-extrabold text-indigo-900">⏱️ Điểm Khôi Phục:</span><button onclick="createSafetySnapshot('Bố chủ động'); renderSnapshotsList(); showToast('🛡️ Đã tạo mốc!', 'bg-indigo-600');" class="text-[11px] text-indigo-600 underline hover:text-indigo-800 font-bold">+ Tạo mốc</button></div>
-<div class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1 mb-2">🛡️ Bảo vệ 3 lớp đang hoạt động.</div>
-<div id="snapshots-list-container" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
-</div>
-</div>
-
 <div class="p-4 rounded-2xl bg-teal-50/80 border-2 border-teal-200 space-y-3">
 <div class="flex items-center justify-between gap-2 flex-wrap">
 <div><div class="text-xs sm:text-sm font-extrabold text-teal-900 flex items-center gap-1.5"><span>🦉</span> Kho Câu Hỏi (dùng chung)</div><div class="text-[11px] font-bold text-teal-700 mt-0.5" id="quiz-stats-label">Đang tải…</div></div>
@@ -521,6 +604,19 @@ body.no-fontawesome .fa-solid::before,body.no-fontawesome .fas::before{content:a
 <div class="pt-2 border-t border-teal-200">
 <div class="flex items-center justify-between mb-1.5"><span class="text-xs font-extrabold text-teal-900">📋 Câu Tự Nhập (<span id="custom-quiz-count">0</span>):</span><button onclick="deleteAllCustomQuizQuestions()" id="delete-all-quiz-btn" class="hidden text-[11px] text-rose-600 underline hover:text-rose-800 font-bold">Xóa tất cả</button></div>
 <div id="custom-quiz-list-container" class="space-y-1.5 max-h-40 overflow-y-auto pr-1"></div>
+</div>
+</div>
+
+<div class="p-4 rounded-2xl bg-indigo-50/70 border-2 border-indigo-200 space-y-3">
+<div class="flex items-center justify-between"><div class="text-xs sm:text-sm font-extrabold text-indigo-900">💾 Sao Lưu Toàn Bộ (Tất cả bé)</div>
+<div class="flex gap-1.5"><button onclick="copyBackupData()" class="btn-3d bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold">📋 Chép</button><button onclick="downloadBackupFile()" class="btn-3d bg-white hover:bg-indigo-100 text-indigo-700 border border-indigo-300 px-3 py-1.5 rounded-xl text-xs font-bold">⬇️ Tải</button></div>
+</div>
+<div id="backup-size-hint" class="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg px-2 py-1 hidden"></div>
+<div class="flex gap-2"><input type="text" id="backup-json-input" placeholder="Dán mã sao lưu..." class="flex-1 px-3 py-1.5 rounded-xl border border-indigo-300 text-xs font-bold"><button onclick="restoreBackupData()" class="btn-3d bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-extrabold shrink-0">Khôi Phục</button></div>
+<div class="pt-2 border-t border-indigo-200/80">
+<div class="flex items-center justify-between mb-1"><span class="text-xs font-extrabold text-indigo-900">⏱️ Điểm Khôi Phục:</span><button onclick="createSafetySnapshot('Bố chủ động'); renderSnapshotsList(); showToast('🛡️ Đã tạo mốc!', 'bg-indigo-600');" class="text-[11px] text-indigo-600 underline hover:text-indigo-800 font-bold">+ Tạo mốc</button></div>
+<div class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1 mb-2">🛡️ Bảo vệ 3 lớp đang hoạt động.</div>
+<div id="snapshots-list-container" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
 </div>
 </div>
 
@@ -658,10 +754,10 @@ function detectOfflineAssets() {
     setTimeout(() => { try { const t = document.createElement('i'); t.className = 'fa-solid fa-lock'; t.style.cssText = 'position:absolute;left:-9999px;top:-9999px;font-size:16px;'; document.body.appendChild(t); const st = window.getComputedStyle(t, '::before'); const c = st && st.content; const ok = c && c !== 'none' && c !== '""' && c !== "''"; document.body.removeChild(t); if (!ok) document.body.classList.add('no-fontawesome'); } catch (e) {} }, 800);
 }
 
-function safeRender(n, fn) { try { fn(); return true; } catch (e) { console.error(`[V7.1] render "${n}":`, e); return false; } }
+function safeRender(n, fn) { try { fn(); return true; } catch (e) { console.error(`[V7.2] render "${n}":`, e); return false; } }
 function showGlobalRecovery() { const el = document.getElementById('global-error-recovery'); if (el) { el.classList.remove('hidden'); el.classList.add('flex'); } }
-window.addEventListener('error', (ev) => console.error('[V7.1] Uncaught:', ev.error || ev.message));
-window.addEventListener('unhandledrejection', (ev) => console.error('[V7.1] Unhandled:', ev.reason));
+window.addEventListener('error', (ev) => console.error('[V7.2] Uncaught:', ev.error || ev.message));
+window.addEventListener('unhandledrejection', (ev) => console.error('[V7.2] Unhandled:', ev.reason));
 
 /* ═══════════════ CONSTANTS ═══════════════ */
 const STORAGE_KEY = 'KHU_VUON_CUA_CON_V1';
@@ -873,6 +969,7 @@ const DEFAULT_QUIZ_QUESTIONS = [
 function getTodayDateString() { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; }
 function getTodayMondayBasedIndex() { const d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
 function getMondayDateStringOfCurrentWeek() { const now = new Date(); const idx = getTodayMondayBasedIndex(); const mon = new Date(now); mon.setDate(now.getDate()-idx); return `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,'0')}-${String(mon.getDate()).padStart(2,'0')}`; }
+function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function createDefaultHabits() { return [
 {id:'h1',title:'Tự giác đánh răng & rửa mặt sạch buổi sáng',category:'morning',stars:2,icon:'🪥',completed:false},
@@ -912,9 +1009,11 @@ function createDefaultProfile() { return {
     selectedPet:'bunny', petAffection:90, petTreats:0, petTreatInventory:[],
     petsTriedSet:['bunny'], chestClaimCount:0, perfectDayCount:0, lastPerfectDayDate:'',
     lastChestClaimedDate:'', dailyArchives:[], activityLogs:[],
-    // 🆕 V7.1: Pet Evolution
     petEvolutionMax: 5,
-    petEvolution: {}
+    petEvolution: {},
+    // V7.2 fields
+    magicShield: { active: false, earnedDate: '', challenge: { q: '', a: '' }, pendingConfirm: false },
+    parentHabits: []
 }; }
 
 function getDefaultState() { return {
@@ -925,7 +1024,7 @@ function getDefaultState() { return {
     voiceName: 'cloud_google_vi',
     voiceRate: 1.0,
     customQuizQuestions: [],
-    _meta: { revision: 0, updatedAt: '', formatVersion: 5 }
+    _meta: { revision: 0, updatedAt: '', formatVersion: 6 }
 }; }
 
 function P() {
@@ -938,25 +1037,14 @@ function P() {
     return state.profiles[state.activeProfileId];
 }
 
-/* ═══════════════ 🆕 V7.1: PET FORM HELPERS ═══════════════ */
 function getPetForm(petId) {
     const p = P();
     if (!p.petEvolution || typeof p.petEvolution !== 'object') return 1;
     const form = Math.floor(Number(p.petEvolution[petId]) || 1);
     return (form >= 2 && form <= 3) ? form : 1;
 }
-
-function getPetFormLabel(form) {
-    return form === 1 ? 'Sơ sinh' : form === 2 ? 'Trưởng thành' : 'Thần thoại';
-}
-
-function getPetDisplayName(petId) {
-    const pet = GARDEN_PETS[petId];
-    if (!pet) return '';
-    const form = getPetForm(petId);
-    return form === 1 ? pet.name : form === 2 ? `${pet.name} ✨` : `${pet.name} 👑`;
-}
-
+function getPetFormLabel(form) { return form === 1 ? 'Sơ sinh' : form === 2 ? 'Trưởng thành' : 'Thần thoại'; }
+function getPetDisplayName(petId) { const pet = GARDEN_PETS[petId]; if (!pet) return ''; const form = getPetForm(petId); return form === 1 ? pet.name : form === 2 ? `${pet.name} ✨` : `${pet.name} 👑`; }
 function canEvolvePet(petId) {
     const p = P();
     const currentForm = getPetForm(petId);
@@ -975,7 +1063,6 @@ function canEvolvePet(petId) {
     }
     return { can: false };
 }
-
 function canEvolvePetQuick(petId, p) {
     if (!p) p = P();
     const form = (p.petEvolution && p.petEvolution[petId]) || 1;
@@ -988,20 +1075,13 @@ function canEvolvePetQuick(petId, p) {
     }
     return false;
 }
-
 function evolvePet(petId) {
     const p = P();
     const pet = GARDEN_PETS[petId];
     if (!pet) return;
     const check = canEvolvePet(petId);
     if (!check.can) {
-        const messages = {
-            max: `👑 ${pet.name} đã đạt Form Thần thoại rồi!`,
-            no_slot: `⚠️ Đã dùng đủ ${check.max} slot. Nhờ Bố Mẹ tăng slot trong Góc Quản Lý!`,
-            affection: `💧 Cần thêm ${check.need}% thân thiết — cho ${pet.name} ăn thêm dâu nhé!`,
-            tasks: `📝 Cần hoàn thành thêm ${check.need} việc tốt nữa!`,
-            streak: `🔥 Cần chuỗi ${check.need} ngày nữa — cố lên!`
-        };
+        const messages = { max: `👑 ${pet.name} đã đạt Form Thần thoại rồi!`, no_slot: `⚠️ Đã dùng đủ ${check.max} slot. Nhờ Bố Mẹ tăng slot trong Góc Quản Lý!`, affection: `💧 Cần thêm ${check.need}% thân thiết — cho ${pet.name} ăn thêm dâu nhé!`, tasks: `📝 Cần hoàn thành thêm ${check.need} việc tốt nữa!`, streak: `🔥 Cần chuỗi ${check.need} ngày nữa — cố lên!` };
         showToast(messages[check.reason] || '⚠️ Chưa đủ điều kiện', 'bg-amber-500');
         return;
     }
@@ -1009,26 +1089,12 @@ function evolvePet(petId) {
     const newForm = check.targetForm;
     p.petEvolution[petId] = newForm;
     const displayName = getPetDisplayName(petId);
-    if (newForm === 2) {
-        addActivityLog(pet.icon, `Pet tiến hóa: ${pet.name} → ${displayName}!`, '⭐ Form 2');
-        speakVietnameseText(`Chúc mừng ${p.childName}! ${pet.name} đã tiến hóa thành ${displayName}!`);
-        showToast(`✨ ${pet.name} đã tiến hóa thành ${displayName}!`, 'bg-pink-500');
-    } else {
-        addActivityLog(pet.icon, `Pet thức tỉnh: ${pet.name} → ${displayName}!`, '👑 Form 3');
-        speakVietnameseText(`Tuyệt vời! ${pet.name} đã thức tỉnh thành thần thú ${displayName}!`);
-        showToast(`👑 ${pet.name} đã thức tỉnh thành ${displayName}!`, 'bg-purple-600');
-    }
+    if (newForm === 2) { addActivityLog(pet.icon, `Pet tiến hóa: ${pet.name} → ${displayName}!`, '⭐ Form 2'); speakVietnameseText(`Chúc mừng ${p.childName}! ${pet.name} đã tiến hóa thành ${displayName}!`); showToast(`✨ ${pet.name} đã tiến hóa thành ${displayName}!`, 'bg-pink-500'); }
+    else { addActivityLog(pet.icon, `Pet thức tỉnh: ${pet.name} → ${displayName}!`, '👑 Form 3'); speakVietnameseText(`Tuyệt vời! ${pet.name} đã thức tỉnh thành thần thú ${displayName}!`); showToast(`👑 ${pet.name} đã thức tỉnh thành ${displayName}!`, 'bg-purple-600'); }
     createSafetySnapshot(`[${p.childName}] Pet tiến hóa: ${displayName}`);
-    playSoundEffect('levelup');
-    triggerConfetti('big');
-    saveState(true);
-    renderAll();
-    setTimeout(() => {
-        const modal = document.getElementById('sticker-album-modal');
-        if (modal && !modal.classList.contains('hidden')) openStickerAlbumModal();
-    }, 500);
+    playSoundEffect('levelup'); triggerConfetti('big'); saveState(true); renderAll();
+    setTimeout(() => { const modal = document.getElementById('sticker-album-modal'); if (modal && !modal.classList.contains('hidden')) openStickerAlbumModal(); }, 500);
 }
-
 function resetPetEvolution(petId) {
     const p = P();
     if (!p.petEvolution || !p.petEvolution[petId]) return;
@@ -1037,55 +1103,364 @@ function resetPetEvolution(petId) {
     if (!confirm(`Reset ${pet.name} về Sơ sinh?\n\n✅ Giải phóng 1 slot tiến hóa\n✅ Bé vẫn giữ pet này`)) return;
     createSafetySnapshot(`[${p.childName}] Reset pet: ${pet.name}`);
     delete p.petEvolution[petId];
-    saveState(true);
-    renderPetEvolutionSection();
-    renderAll();
+    saveState(true); renderPetEvolutionSection(); renderAll();
     showToast(`🔄 Đã reset ${pet.name} về Sơ sinh`, 'bg-amber-500');
 }
-
 function updatePetEvoSlots(val) {
     const p = P();
     const v = Math.max(1, Math.min(16, Math.floor(Number(val) || 5)));
     const evolvedCount = Object.keys(p.petEvolution || {}).length;
-    if (v < evolvedCount) {
-        showToast(`⚠️ Không giảm được — đã có ${evolvedCount} pet tiến hóa. Reset pet trước!`, 'bg-amber-500');
-        const slider = document.getElementById('pet-evo-slots-slider');
-        if (slider) slider.value = p.petEvolutionMax;
-        const disp = document.getElementById('pet-evo-slots-display');
-        if (disp) disp.textContent = p.petEvolutionMax;
-        return;
-    }
+    if (v < evolvedCount) { showToast(`⚠️ Không giảm được — đã có ${evolvedCount} pet tiến hóa. Reset pet trước!`, 'bg-amber-500'); const slider = document.getElementById('pet-evo-slots-slider'); if (slider) slider.value = p.petEvolutionMax; const disp = document.getElementById('pet-evo-slots-display'); if (disp) disp.textContent = p.petEvolutionMax; return; }
     p.petEvolutionMax = v;
-    saveState();
-    renderPetEvolutionSection();
-    renderAll();
+    saveState(); renderPetEvolutionSection(); renderAll();
     showToast(`🐾 Đã đặt ${v} slot pet tiến hóa cho ${p.childName}`, 'bg-fuchsia-600');
 }
-
 function renderPetEvolutionSection() {
     const p = P();
-    const slider = document.getElementById('pet-evo-slots-slider');
-    const disp = document.getElementById('pet-evo-slots-display');
-    const hint = document.getElementById('pet-evo-slots-hint');
-    const list = document.getElementById('pet-evo-list');
+    const slider = document.getElementById('pet-evo-slots-slider'), disp = document.getElementById('pet-evo-slots-display'), hint = document.getElementById('pet-evo-slots-hint'), list = document.getElementById('pet-evo-list');
     if (slider) slider.value = p.petEvolutionMax;
     if (disp) disp.textContent = p.petEvolutionMax;
     const evolvedCount = Object.keys(p.petEvolution || {}).length;
     if (hint) hint.textContent = `Đã dùng ${evolvedCount}/${p.petEvolutionMax} slot · Còn ${p.petEvolutionMax - evolvedCount} slot`;
     if (!list) return;
     list.innerHTML = Object.values(GARDEN_PETS).map(pet => {
-        const form = getPetForm(pet.id);
-        const isEvolved = form >= 2;
+        const form = getPetForm(pet.id); const isEvolved = form >= 2;
         const bgCls = form === 3 ? 'bg-purple-100 border-purple-400' : form === 2 ? 'bg-amber-100 border-amber-400' : 'bg-white border-slate-200';
         const badge = form === 3 ? '👑' : form === 2 ? '⭐' : '';
-        return `<div class="p-1.5 rounded-lg border-2 ${bgCls} text-center">
-            <div class="text-lg">${pet.icon}</div>
-            <div class="text-[9px] font-extrabold text-slate-700 truncate">${pet.shortName || pet.name}</div>
-            <div class="text-[8px] font-bold ${form === 3 ? 'text-purple-700' : form === 2 ? 'text-amber-700' : 'text-slate-500'}">${getPetFormLabel(form)} ${badge}</div>
-            ${isEvolved ? `<button onclick="resetPetEvolution('${pet.id}')" class="mt-0.5 w-full text-[8px] font-extrabold bg-rose-100 hover:bg-rose-200 text-rose-700 rounded px-1 py-0.5">Reset</button>` : ''}
+        return `<div class="p-1.5 rounded-lg border-2 ${bgCls} text-center"><div class="text-lg">${pet.icon}</div><div class="text-[9px] font-extrabold text-slate-700 truncate">${pet.shortName || pet.name}</div><div class="text-[8px] font-bold ${form === 3 ? 'text-purple-700' : form === 2 ? 'text-amber-700' : 'text-slate-500'}">${getPetFormLabel(form)} ${badge}</div>${isEvolved ? `<button onclick="resetPetEvolution('${pet.id}')" class="mt-0.5 w-full text-[8px] font-extrabold bg-rose-100 hover:bg-rose-200 text-rose-700 rounded px-1 py-0.5">Reset</button>` : ''}</div>`;
+    }).join('');
+}
+
+/* V7.2: MAGIC SHIELD & PARENT HABITS HELPERS */
+function saveMagicChallenge() {
+    const p = P();
+    const q = document.getElementById('magic-challenge-q').value.trim();
+    const a = document.getElementById('magic-challenge-a').value.trim();
+    if (!q || !a) { showToast('⚠️ Nhập đủ câu hỏi và đáp án!', 'bg-amber-500'); return; }
+    p.magicShield.challenge = { q, a };
+    p.magicShield.pendingConfirm = false;
+    saveState();
+    renderMagicShieldStatus();
+    showToast('✅ Đã lưu Nhiệm Vụ Phép Thuật!', 'bg-purple-600');
+}
+function renderMagicShieldStatus() {
+    const p = P();
+    const box = document.getElementById('magic-status-box');
+    if (!box) return;
+    const ms = p.magicShield;
+    if (ms.active) {
+        box.innerHTML = `🛡️ <strong>Khiên đang hoạt động!</strong> Bé sẽ được bảo vệ nếu mất Streak.`;
+        box.className = 'text-[11px] font-bold p-2 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300';
+    } else if (ms.pendingConfirm) {
+        box.innerHTML = `⏳ Bé đã trả lời đúng! Bấm <button onclick="confirmMagicShield()" class="bg-purple-600 text-white px-2 py-0.5 rounded underline">Xác nhận</button> để trao Khiên.`;
+        box.className = 'text-[11px] font-bold p-2 rounded-lg bg-amber-100 text-amber-800 border border-amber-300';
+    } else if (ms.challenge.q) {
+        box.innerHTML = `🪄 Đã thiết lập thử thách. Đang chờ bé vượt qua.`;
+        box.className = 'text-[11px] font-bold p-2 rounded-lg bg-purple-50 text-purple-800 border border-purple-200';
+    } else {
+        box.innerHTML = `Chưa thiết lập nhiệm vụ.`;
+        box.className = 'text-[11px] font-bold p-2 rounded-lg bg-slate-100 text-slate-600 border border-slate-200';
+    }
+}
+function confirmMagicShield() {
+    const p = P();
+    p.magicShield.active = true;
+    p.magicShield.pendingConfirm = false;
+    p.magicShield.earnedDate = getTodayDateString();
+    saveState();
+    renderMagicShieldStatus();
+    renderAll();
+    showToast('🛡️ Đã trao Khiên Bảo Vệ Streak cho bé!', 'bg-purple-600');
+    speakVietnameseText(`Tuyệt vời! ${p.childName} đã nhận được Khiên Bảo Vệ Streak!`);
+}
+function openMagicChallengeModal() {
+    const p = P();
+    const ms = p.magicShield;
+    if (!ms.challenge.q || ms.active || ms.pendingConfirm) return;
+    document.getElementById('magic-challenge-content').innerHTML = `<div class="text-xs font-bold text-purple-300 uppercase mb-1">Thử thách:</div><div class="text-base font-extrabold text-white">${escapeHtml(ms.challenge.q)}</div>`;
+    document.getElementById('magic-answer-input').value = '';
+    document.getElementById('magic-answer-box').classList.remove('hidden');
+    document.getElementById('magic-waiting-box').classList.add('hidden');
+    const m = document.getElementById('magic-challenge-modal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+    playSoundEffect('levelup');
+}
+function closeMagicChallengeModal() { const m = document.getElementById('magic-challenge-modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+function submitMagicAnswer() {
+    const p = P();
+    const ans = document.getElementById('magic-answer-input').value.trim().toLowerCase();
+    const expected = p.magicShield.challenge.a.trim().toLowerCase();
+    if (!ans) return;
+    if (ans === expected) {
+        p.magicShield.pendingConfirm = true;
+        saveState(true);
+        document.getElementById('magic-answer-box').classList.add('hidden');
+        document.getElementById('magic-waiting-box').classList.remove('hidden');
+        playSoundEffect('levelup'); triggerConfetti('big');
+        speakVietnameseText('Chính xác! Bố mẹ ơi, con đã làm xong rồi!');
+        showToast('✨ Bé đã làm đúng! Nhờ Bố Mẹ xác nhận.', 'bg-emerald-600');
+    } else {
+        playSoundEffect('uncheck'); speakVietnameseText('Sai rồi, thử lại nhé!');
+        showToast('❌ Sai rồi, thử lại nhé!', 'bg-rose-500');
+    }
+}
+function openParentHabitModal() {
+    let title = prompt("Tên thói quen của Bố/Mẹ (VD: Đọc sách, Tập thể dục):");
+    if (!title) return;
+    let target = parseInt(prompt("Mục tiêu bao nhiêu lần / tuần?", "3"), 10);
+    if (!target || target < 1) target = 3;
+    const p = P();
+    if (!Array.isArray(p.parentHabits)) p.parentHabits = [];
+    p.parentHabits.push({ id: 'ph_' + Date.now(), title: title, icon: '⭐', target: target, period: 'week', completedDates: [] });
+    saveState(true);
+    renderParentHabits(); renderAll();
+}
+function deleteParentHabit(id) {
+    if (!confirm("Xóa thói quen này?")) return;
+    const p = P();
+    p.parentHabits = p.parentHabits.filter(x => x.id !== id);
+    saveState(true);
+    renderParentHabits(); renderAll();
+}
+function renderParentHabits() {
+    const p = P();
+    const c = document.getElementById('parent-habits-list-container');
+    if (!c) return;
+    if (!p.parentHabits || p.parentHabits.length === 0) {
+        c.innerHTML = `<div class="text-[11px] text-slate-400 italic text-center py-2">Chưa có thói quen nào.</div>`;
+        return;
+    }
+    c.innerHTML = p.parentHabits.map(h => `
+        <div class="p-2 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2">
+            <div class="text-xs font-extrabold text-slate-800">${h.icon} ${h.title} <span class="text-[10px] text-slate-400">(${h.target} lần/tuần)</span></div>
+            <div class="flex items-center gap-1">
+                <button onclick="deleteParentHabit('${h.id}')" class="text-rose-500 text-[10px] px-2 py-1 rounded bg-rose-50">Xóa</button>
+            </div>
+        </div>
+    `).join('');
+}
+function renderChildParentHabitsView() {
+    const p = P();
+    const c = document.getElementById('child-parent-habits-view');
+    if (!c) return;
+    if (!p.parentHabits || p.parentHabits.length === 0) {
+        c.innerHTML = `<div class="text-center py-4 text-amber-500 font-bold text-sm bg-white/50 rounded-xl border border-dashed border-amber-300">Bố Mẹ chưa thiết lập thói quen nào.</div>`;
+        return;
+    }
+    const today = new Date();
+    const dayIdx = getTodayMondayBasedIndex();
+    const mon = new Date(today);
+    mon.setDate(today.getDate() - dayIdx);
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(mon);
+        d.setDate(mon.getDate() + i);
+        weekDates.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+    }
+    c.innerHTML = p.parentHabits.map(h => {
+        const doneCount = h.completedDates.filter(d => weekDates.includes(d)).length;
+        const target = h.target;
+        const pct = Math.min(100, Math.round((doneCount / target) * 100));
+        const isDoneToday = h.completedDates.includes(getTodayDateString());
+        const isGoalMet = doneCount >= target;
+        return `<div class="p-3 rounded-2xl bg-white border-2 ${isGoalMet ? 'border-emerald-400 bg-emerald-50' : 'border-amber-200'} shadow-sm">
+            <div class="flex items-center justify-between mb-1">
+                <div class="text-sm font-extrabold text-slate-800 flex items-center gap-1.5"><span class="text-lg">${h.icon}</span> ${h.title}</div>
+                <div class="text-[10px] font-extrabold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">${doneCount}/${target} lần/tuần</div>
+            </div>
+            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-2">
+                <div class="h-full ${isGoalMet ? 'bg-emerald-500' : 'bg-amber-400'} rounded-full transition-all" style="width: ${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+                <button onclick="markParentHabit('${h.id}')" class="flex-1 py-1.5 rounded-xl ${isDoneToday ? 'bg-emerald-100 text-emerald-600 cursor-default' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} font-extrabold text-[11px] transition">${isDoneToday ? '✓ Đã làm hôm nay' : 'Bố/Mẹ đã làm!'}</button>
+                ${isGoalMet ? `<button onclick="rewardParentHabit('${h.id}')" class="btn-3d bg-gradient-to-r from-pink-400 to-rose-500 text-white font-extrabold px-3 py-1.5 rounded-xl text-[11px] flex items-center gap-1 shadow-sm shrink-0">🎁 Tặng quà (5⭐)</button>` : ''}
+            </div>
         </div>`;
     }).join('');
 }
+function markParentHabit(id) {
+    const p = P();
+    const h = p.parentHabits.find(x => x.id === id);
+    if (!h) return;
+    const todayStr = getTodayDateString();
+    if (h.completedDates.includes(todayStr)) return;
+    h.completedDates.push(todayStr);
+    saveState(true); renderChildParentHabitsView();
+    playSoundEffect('complete');
+    showToast(`🌟 Đã ghi nhận Bố/Mẹ hoàn thành: ${h.title}!`, 'bg-amber-500');
+    speakVietnameseText(`Tuyệt vời! Đã ghi nhận Bố hoặc Mẹ hoàn thành thói quen ${h.title}!`);
+}
+function rewardParentHabit(id) {
+    const p = P();
+    const h = p.parentHabits.find(x => x.id === id);
+    if (!h) return;
+    if (p.stars < 5) { showToast('⚠️ Bé cần 5 ⭐ để tặng quà. Hãy làm việc tốt thêm nhé!', 'bg-amber-500'); return; }
+    p.stars -= 5;
+    const today = new Date();
+    const dayIdx = getTodayMondayBasedIndex();
+    const mon = new Date(today);
+    mon.setDate(today.getDate() - dayIdx);
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(mon);
+        d.setDate(mon.getDate() + i);
+        weekDates.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+    }
+    h.completedDates = h.completedDates.filter(d => !weekDates.includes(d));
+    saveState(true); renderChildParentHabitsView(); renderAll();
+    playSoundEffect('levelup'); triggerConfetti('big');
+    showToast('🎁 Bé đã tặng quà cho Bố Mẹ! Tuyệt vời!', 'bg-pink-500');
+    speakVietnameseText(`Ôi cảm ơn ${p.childName}! Bố Mẹ rất vui vì món quà này!`);
+}
+
+/* V7.2: PAST DAY EDITOR HELPERS */
+let pastDayDate = '';
+let pastDayCompleted = new Set();
+let pastDaySnapshotTaken = false;
+
+function openPastDayModal() {
+    if (!isParentMode) return;
+    const sel = document.getElementById('past-date-select');
+    sel.innerHTML = '';
+    const now = new Date();
+    for (let i = 1; i <= 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const day = String(d.getDate()).padStart(2,'0');
+        const val = `${y}-${m}-${day}`;
+        const label = `${day}/${m}/${y} (${['CN','T2','T3','T4','T5','T6','T7'][d.getDay()]})`;
+        sel.innerHTML += `<option value="${val}">${label}</option>`;
+    }
+    pastDaySnapshotTaken = false;
+    loadPastDayData();
+    document.getElementById('past-day-modal').classList.remove('hidden');
+    document.getElementById('past-day-modal').classList.add('flex');
+}
+function loadPastDayData() {
+    const date = document.getElementById('past-date-select').value;
+    pastDayDate = date;
+    const p = P();
+    if (!pastDaySnapshotTaken) { createSafetySnapshot(`Trước khi sửa ngày quá khứ ${date}`); pastDaySnapshotTaken = true; }
+    const ledger = p.habitRewardLedger[date] || {};
+    pastDayCompleted = new Set(Object.keys(ledger));
+    renderPastDayHabits();
+}
+function renderPastDayHabits() {
+    const p = P();
+    const c = document.getElementById('past-habits-list');
+    c.innerHTML = p.habits.map(h => {
+        const checked = pastDayCompleted.has(h.id);
+        return `<div onclick="togglePastDayHabit('${h.id}')" class="p-3 rounded-xl border-2 cursor-pointer transition flex items-center justify-between ${checked ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'}">
+            <div class="flex items-center gap-2"><div class="text-xl">${h.icon || '🌟'}</div><div class="text-sm font-extrabold text-slate-800">${h.title}</div></div>
+            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${checked ? 'bg-emerald-500 border-emerald-600 text-white' : 'border-slate-300'}">${checked ? '<i class="fa-solid fa-check text-xs"></i>' : ''}</div>
+        </div>`;
+    }).join('');
+}
+function togglePastDayHabit(id) {
+    if (pastDayCompleted.has(id)) pastDayCompleted.delete(id);
+    else pastDayCompleted.add(id);
+    renderPastDayHabits();
+}
+function savePastDayData() {
+    const p = P();
+    const date = pastDayDate;
+    if (!date) return;
+    if (!p.habitRewardLedger[date]) p.habitRewardLedger[date] = {};
+    const ledger = p.habitRewardLedger[date];
+    let diffStars = 0;
+    let done = 0;
+    p.habits.forEach(h => {
+        const wasDone = !!ledger[h.id];
+        const isDone = pastDayCompleted.has(h.id);
+        if (isDone) done++;
+        if (!wasDone && isDone) {
+            diffStars += Number(h.stars) || 2;
+            ledger[h.id] = { legacy:true, stars:0, treatTokenId:null, waterApplied:false };
+        } else if (wasDone && !isDone) {
+            diffStars -= Number(h.stars) || 2;
+            delete ledger[h.id];
+        }
+    });
+    p.stars = Math.max(0, (p.stars || 0) + diffStars);
+    const total = p.habits.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    
+    const idx = new Date(`${date}T00:00:00`).getDay();
+    const mondayIdx = idx === 0 ? 6 : idx - 1;
+    if (p.weekMondayDate === getMondayDateStringOfCurrentWeek()) {
+        const dObj = new Date(`${date}T00:00:00`);
+        const monStr = getMondayDateStringOfCurrentWeek();
+        const monObj = new Date(`${monStr}T00:00:00`);
+        const diffDays = Math.floor((dObj - monObj) / 86400000);
+        if (diffDays >= 0 && diffDays < 7) {
+            p.weeklyHistory[diffDays].percent = pct;
+            p.weeklyHistory[diffDays].done = done;
+            p.weeklyHistory[diffDays].stars = p.habits.filter(h => pastDayCompleted.has(h.id)).reduce((s, h) => s + (Number(h.stars) || 2), 0);
+        }
+    }
+    if (!Array.isArray(p.dailyArchives)) p.dailyArchives = [];
+    const dateParts = date.split('-');
+    const archDateStr = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+    const archIdx = p.dailyArchives.findIndex(a => a.date === archDateStr);
+    if (archIdx >= 0) {
+        p.dailyArchives[archIdx].done = done;
+        p.dailyArchives[archIdx].pct = pct;
+    } else if (done > 0) {
+        p.dailyArchives.push({ date: archDateStr, done, total, pct, starsEarned: 0 });
+        p.dailyArchives.sort((a,b) => {
+            const [d1,m1,y1] = a.date.split('/'); const [d2,m2,y2] = b.date.split('/');
+            return new Date(`${y1}-${m1}-${d1}`) - new Date(`${y2}-${m2}-${d2}`);
+        });
+    }
+    recalculateStreakFromArchives(p);
+    saveState(true);
+    closePastDayModal();
+    renderAll();
+    showToast(`✅ Đã cập nhật ngày ${archDateStr}. Chuỗi hiện tại: ${p.streak} ngày!`, 'bg-emerald-600');
+    speakVietnameseText(`Đã cập nhật ngày quá khứ. Chuỗi hiện tại của ${p.childName} là ${p.streak} ngày!`);
+}
+function recalculateStreakFromArchives(p) {
+    const todayStr = getTodayDateString();
+    const threshold = p.streakThreshold || 70;
+    const dayMap = new Map();
+    if (Array.isArray(p.dailyArchives)) {
+        p.dailyArchives.forEach(a => {
+            const parts = a.date.split('/');
+            if (parts.length === 3) { dayMap.set(`${parts[2]}-${parts[1]}-${parts[0]}`, a.pct); }
+        });
+    }
+    const total = p.habits.length;
+    const done = p.habits.filter(h => h.completed).length;
+    const todayPct = total > 0 ? Math.round((done / total) * 100) : 0;
+    dayMap.set(todayStr, todayPct);
+    
+    let currentStreak = 0;
+    let d = new Date();
+    if (todayPct <= threshold) d.setDate(d.getDate() - 1);
+    while (true) {
+        const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const dayStr = String(d.getDate()).padStart(2,'0');
+        const iso = `${y}-${m}-${dayStr}`;
+        if (dayMap.has(iso)) {
+            if (dayMap.get(iso) > threshold) { currentStreak++; d.setDate(d.getDate() - 1); }
+            else break;
+        } else break;
+    }
+    p.streak = currentStreak;
+    if (p.streak > (p.bestStreak || 0)) p.bestStreak = p.streak;
+    
+    let mostRecentQual = '';
+    let dScan = new Date();
+    for(let i=0; i<60; i++) {
+        const y = dScan.getFullYear(); const m = String(dScan.getMonth()+1).padStart(2,'0'); const dayStr = String(dScan.getDate()).padStart(2,'0');
+        const iso = `${y}-${m}-${dayStr}`;
+        if (dayMap.has(iso) && dayMap.get(iso) > threshold) { mostRecentQual = iso; break; }
+        dScan.setDate(dScan.getDate() - 1);
+    }
+    p.lastStreakCreditedDate = mostRecentQual;
+}
+function closePastDayModal() { document.getElementById('past-day-modal').classList.add('hidden'); document.getElementById('past-day-modal').classList.remove('flex'); }
 
 /* ═══════════════ NORMALIZE + MIGRATE ═══════════════ */
 function normalizeProfile(rawP) {
@@ -1111,7 +1486,6 @@ function normalizeProfile(rawP) {
         p[k] = Number.isFinite(v) ? Math.max(0, Math.floor(v)) : fb;
     }
     p.streakThreshold = Math.max(30, Math.min(95, Math.floor(Number(p.streakThreshold) || 70)));
-    // V7.1
     p.petEvolutionMax = Math.max(1, Math.min(16, Math.floor(Number(p.petEvolutionMax) || 5)));
     if (!p.petEvolution || typeof p.petEvolution !== 'object' || Array.isArray(p.petEvolution)) p.petEvolution = {};
     Object.keys(p.petEvolution).forEach(pid => {
@@ -1120,6 +1494,15 @@ function normalizeProfile(rawP) {
         if (form < 2 || form > 3) delete p.petEvolution[pid];
         else p.petEvolution[pid] = form;
     });
+    // V7.2: Magic Shield & Parent Habits
+    if (!p.magicShield || typeof p.magicShield !== 'object') {
+        p.magicShield = { active: false, earnedDate: '', challenge: { q: '', a: '' }, pendingConfirm: false };
+    } else {
+        p.magicShield = { ...def.magicShield, ...p.magicShield };
+        if (!p.magicShield.challenge || typeof p.magicShield.challenge !== 'object') p.magicShield.challenge = { q: '', a: '' };
+    }
+    if (!Array.isArray(p.parentHabits)) p.parentHabits = [];
+
     if (!Array.isArray(p.petsTriedSet)) p.petsTriedSet = [];
     p.petsTriedSet = p.petsTriedSet.filter(x => typeof x === 'string' && GARDEN_PETS[x]);
     if (!p.petsTriedSet.includes(p.selectedPet)) p.petsTriedSet.push(p.selectedPet);
@@ -1145,11 +1528,11 @@ function normalizeProfile(rawP) {
 function migrateIfNeeded(parsed) {
     if (parsed && typeof parsed === 'object' && parsed.profiles && typeof parsed.profiles === 'object' && !Array.isArray(parsed.profiles)) return parsed;
     if (parsed && typeof parsed === 'object' && parsed.childName) {
-        console.info('[V7.1] Migrating legacy single-child state');
-        const childFields = ['childName','childAvatar','childGrade','childDream','dadMessage','streak','bestStreak','streakThreshold','lastStreakCreditedDate','streakLockedDate','habitRewardLedger','plantGeneration','stars','lastActiveDate','weekMondayDate','currentPlant','harvestedPlants','habits','penalties','penaltyHistory','weeklyHistory','rewards','redeemedHistory','totalTasksCompleted','focusSessionsCompleted','quizzesSolved','quizRewardDate','quizRewardCountToday','selectedPet','petAffection','petTreats','petTreatInventory','petsTriedSet','chestClaimCount','perfectDayCount','lastPerfectDayDate','lastChestClaimedDate','dailyArchives','activityLogs','petEvolutionMax','petEvolution'];
+        console.info('[V7.2] Migrating legacy single-child state');
+        const childFields = ['childName','childAvatar','childGrade','childDream','dadMessage','streak','bestStreak','streakThreshold','lastStreakCreditedDate','streakLockedDate','habitRewardLedger','plantGeneration','stars','lastActiveDate','weekMondayDate','currentPlant','harvestedPlants','habits','penalties','penaltyHistory','weeklyHistory','rewards','redeemedHistory','totalTasksCompleted','focusSessionsCompleted','quizzesSolved','quizRewardDate','quizRewardCountToday','selectedPet','petAffection','petTreats','petTreatInventory','petsTriedSet','chestClaimCount','perfectDayCount','lastPerfectDayDate','lastChestClaimedDate','dailyArchives','activityLogs','petEvolutionMax','petEvolution','magicShield','parentHabits'];
         const legacy = {};
         childFields.forEach(f => { if (parsed[f] !== undefined) legacy[f] = parsed[f]; });
-        return { activeProfileId: 'p1', profiles: { 'p1': legacy }, parentPin: parsed.parentPin || '1234', soundEnabled: parsed.soundEnabled !== false, voiceName: parsed.voiceName || 'cloud_google_vi', voiceRate: Number(parsed.voiceRate) || 1.0, customQuizQuestions: Array.isArray(parsed.customQuizQuestions) ? parsed.customQuizQuestions : [], _meta: parsed._meta || { revision: 0, updatedAt: '', formatVersion: 5 } };
+        return { activeProfileId: 'p1', profiles: { 'p1': legacy }, parentPin: parsed.parentPin || '1234', soundEnabled: parsed.soundEnabled !== false, voiceName: parsed.voiceName || 'cloud_google_vi', voiceRate: Number(parsed.voiceRate) || 1.0, customQuizQuestions: Array.isArray(parsed.customQuizQuestions) ? parsed.customQuizQuestions : [], _meta: parsed._meta || { revision: 0, updatedAt: '', formatVersion: 6 } };
     }
     return getDefaultState();
 }
@@ -1175,7 +1558,7 @@ function normalizeState(parsed) {
         merged.customQuizQuestions = merged.customQuizQuestions.filter(item => item && typeof item === 'object' && !Array.isArray(item) && typeof item.cat === 'string' && item.cat.trim() && typeof item.q === 'string' && item.q.trim() && Array.isArray(item.opts) && item.opts.length === 4 && item.opts.every(o => typeof o === 'string' && o.trim()) && typeof item.ans === 'string' && item.opts.map(x => x.trim()).includes(item.ans.trim()))
             .map((item, idx) => ({ id: typeof item.id === 'string' && item.id ? item.id : `q_custom_${idx}_${Date.now()}`, cat: item.cat.trim(), q: item.q.trim(), opts: item.opts.map(o => o.trim()), ans: item.ans.trim(), explain: typeof item.explain === 'string' ? item.explain.trim() : '' }));
     }
-    merged._meta = (migrated._meta && typeof migrated._meta === 'object') ? { revision: Math.max(0, Math.floor(Number(migrated._meta.revision) || 0)), updatedAt: typeof migrated._meta.updatedAt === 'string' ? migrated._meta.updatedAt : '', formatVersion: 5 } : { revision: 0, updatedAt: '', formatVersion: 5 };
+    merged._meta = (migrated._meta && typeof migrated._meta === 'object') ? { revision: Math.max(0, Math.floor(Number(migrated._meta.revision) || 0)), updatedAt: typeof migrated._meta.updatedAt === 'string' ? migrated._meta.updatedAt : '', formatVersion: 6 } : { revision: 0, updatedAt: '', formatVersion: 6 };
     return merged;
 }
 
@@ -1202,10 +1585,10 @@ function saveState(immediate = false) {
 }
 function _doSaveState() {
     try {
-        if (!state._meta || typeof state._meta !== 'object') state._meta = { revision: 0, updatedAt: '', formatVersion: 5 };
+        if (!state._meta || typeof state._meta !== 'object') state._meta = { revision: 0, updatedAt: '', formatVersion: 6 };
         state._meta.revision = Math.max(0, Number(state._meta.revision) || 0) + 1;
         state._meta.updatedAt = new Date().toISOString();
-        state._meta.formatVersion = 5;
+        state._meta.formatVersion = 6;
         const serialized = JSON.stringify(state);
         try { localStorage.setItem(STORAGE_KEY, serialized); } catch (e) { console.warn('localStorage main failed:', e); }
         try { localStorage.setItem(MIRROR_STORAGE_KEY, serialized); } catch (e) {}
@@ -1226,19 +1609,14 @@ function checkStorageHealth() {
     } catch (e) { return { level: 'error', error: e.message }; }
 }
 function renderStorageHealthWarning() {
-    const warnEl = document.getElementById('storage-health-warning');
-    const detailEl = document.getElementById('storage-health-detail');
-    const backupHint = document.getElementById('backup-size-hint');
+    const warnEl = document.getElementById('storage-health-warning'), detailEl = document.getElementById('storage-health-detail'), backupHint = document.getElementById('backup-size-hint');
     if (!warnEl) return;
     const h = checkStorageHealth();
     if (h.level === 'warning' || h.level === 'danger') {
         warnEl.classList.remove('hidden');
         if (detailEl) detailEl.textContent = `Đã dùng ${h.totalMB}MB (state ${h.stateMB}MB + snapshot ${h.snapshotMB}MB) — ${h.profiles} bé, ${h.snapshotCount} mốc.`;
     } else warnEl.classList.add('hidden');
-    if (backupHint) {
-        if (h.level !== 'ok') { backupHint.classList.remove('hidden'); backupHint.textContent = `⚠️ Backup JSON ~${h.stateMB}MB — có thể chậm trên iPad. Nên tải file thay vì chép.`; }
-        else backupHint.classList.add('hidden');
-    }
+    if (backupHint) { if (h.level !== 'ok') { backupHint.classList.remove('hidden'); backupHint.textContent = `⚠️ Backup JSON ~${h.stateMB}MB — có thể chậm trên iPad. Nên tải file thay vì chép.`; } else backupHint.classList.add('hidden'); }
 }
 function deleteOldestSnapshot() {
     const snaps = getSafetySnapshots();
@@ -1247,15 +1625,14 @@ function deleteOldestSnapshot() {
     const newSnaps = snaps.slice(0, Math.max(1, snaps.length - 2));
     try { localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(newSnaps)); } catch (e) {}
     writeToIndexedDB('safetySnapshots', newSnaps);
-    renderSnapshotsList();
-    renderStorageHealthWarning();
+    renderSnapshotsList(); renderStorageHealthWarning();
     showToast(`🗑️ Đã xóa snapshot cũ (còn ${newSnaps.length} mốc)`, 'bg-amber-500');
 }
 
 function replaceStateData(nextState) {
     const curRev = Math.max(0, Number(state?._meta?.revision) || 0);
     const restored = normalizeState(nextState);
-    restored._meta = { revision: Math.max(curRev, Number(restored._meta?.revision) || 0) + 1, updatedAt: new Date().toISOString(), formatVersion: 5 };
+    restored._meta = { revision: Math.max(curRev, Number(restored._meta?.revision) || 0) + 1, updatedAt: new Date().toISOString(), formatVersion: 6 };
     state = restored;
 }
 
@@ -1417,8 +1794,30 @@ function checkAutoNewDay() {
         const pct = total > 0 ? Math.round((done / total) * 100) : 0;
         const gap = getCalendarDayGap(last, todayStr);
         const qual = p.lastStreakCreditedDate === last || isStreakThresholdMet(pct);
-        if (gap === 1 && qual) { if (p.lastStreakCreditedDate !== last) { p.streak = (p.streak || 0) + 1; p.lastStreakCreditedDate = last; } if (p.streak > (p.bestStreak || 0)) p.bestStreak = p.streak; }
-        else { p.streak = 0; p.lastStreakCreditedDate = ''; p.streakLockedDate = ''; }
+        
+        if (gap === 1) {
+            if (qual) {
+                if (p.lastStreakCreditedDate !== last) { p.streak = (p.streak || 0) + 1; p.lastStreakCreditedDate = last; }
+                if (p.streak > (p.bestStreak || 0)) p.bestStreak = p.streak;
+            } else {
+                // Streak broken
+                if (p.magicShield && p.magicShield.active) {
+                    // Shield saves!
+                    p.magicShield.active = false;
+                    addActivityLog('🛡️', 'Khiên phép thuật đã bảo vệ Chuỗi ngày!', '');
+                } else {
+                    p.streak = 0;
+                    p.lastStreakCreditedDate = '';
+                    p.streakLockedDate = '';
+                }
+            }
+        } else {
+            // Gap > 1, streak broken regardless
+            p.streak = 0;
+            p.lastStreakCreditedDate = '';
+            p.streakLockedDate = '';
+        }
+
         if (p.weekMondayDate !== curMon) { p.weeklyHistory = ['T2','T3','T4','T5','T6','T7','CN'].map(d => ({ day:d, percent:0, stars:0, done:0, total })); p.weekMondayDate = curMon; }
         if (!Array.isArray(p.dailyArchives)) p.dailyArchives = [];
         const earned = p.habits.filter(h => h.completed).reduce((s, h) => s + (Number(h.stars) || 2), 0);
@@ -1546,7 +1945,17 @@ function updateTimeOfDayTheme() {
 }
 
 function renderAll() {
-    const results = { theme: safeRender('theme', updateTimeOfDayTheme), sync: safeRender('sync', syncTodayToWeeklyHistory), header: safeRender('header', renderHeader), habits: safeRender('habits', renderHabits), penalties: safeRender('penalties', renderPenalties), garden: safeRender('garden', renderGarden), chart: safeRender('chart', renderWeeklyChart), rewards: safeRender('rewards', renderRewards) };
+    const results = {
+        theme: safeRender('theme', updateTimeOfDayTheme),
+        sync: safeRender('sync', syncTodayToWeeklyHistory),
+        header: safeRender('header', renderHeader),
+        habits: safeRender('habits', renderHabits),
+        penalties: safeRender('penalties', renderPenalties),
+        garden: safeRender('garden', renderGarden),
+        chart: safeRender('chart', renderWeeklyChart),
+        rewards: safeRender('rewards', renderRewards),
+        parentHabits: safeRender('parentHabits', renderChildParentHabitsView)
+    };
     try { saveState(); } catch (e) {}
     const fails = Object.values(results).filter(v => v === false).length;
     if (fails >= 3) showGlobalRecovery();
@@ -1585,7 +1994,6 @@ function renderHeader() {
     document.getElementById('current-date-badge').textContent = `${days[now.getDay()]}, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}`;
     const sIcon = document.getElementById('sound-icon');
     if (sIcon) sIcon.className = state.soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-400';
-    // V7.1: Pet companion display with form
     const pk = p.selectedPet && GARDEN_PETS[p.selectedPet] ? p.selectedPet : 'bunny';
     const po = GARDEN_PETS[pk];
     const petForm = getPetForm(pk);
@@ -1605,7 +2013,10 @@ function renderHeader() {
     if (document.getElementById('companion-name-label')) document.getElementById('companion-name-label').textContent = `Bạn ${getPetDisplayName(pk)}`;
     if (document.getElementById('companion-affection-badge')) document.getElementById('companion-affection-badge').textContent = `❤️ ${p.petAffection || 90}%`;
     if (document.getElementById('pet-treats-count')) document.getElementById('pet-treats-count').textContent = p.petTreats || 0;
-    // V7.1: Sticker badge pulses when any pet evolvable
+    
+    const totalHabits = p.habits.length;
+    const doneHabits = p.habits.filter(h => h.completed).length;
+    const pct = totalHabits > 0 ? Math.round((doneHabits / totalHabits) * 100) : 0;
     const unlocked = STICKER_COLLECTION.filter(s => s.check(p)).length;
     const anyEvolvable = Object.values(GARDEN_PETS).some(pet => canEvolvePetQuick(pet.id, p));
     const sb = document.getElementById('sticker-badge-count');
@@ -1613,6 +2024,18 @@ function renderHeader() {
         if (anyEvolvable) { sb.className = 'bg-gradient-to-r from-pink-500 to-purple-500 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full animate-pulse'; sb.textContent = '✨'; }
         else { sb.className = 'bg-pink-500 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full'; sb.textContent = `${unlocked}/${STICKER_COLLECTION.length}`; }
     }
+    
+    // V7.2: Magic Shield Indicator
+    const ms = p.magicShield;
+    const msEl = document.getElementById('magic-shield-indicator');
+    if (msEl) {
+        if (ms && ms.challenge.q && !ms.active && !ms.pendingConfirm && p.streak > 0 && !isStreakThresholdMet(pct)) {
+            msEl.classList.remove('hidden');
+        } else {
+            msEl.classList.add('hidden');
+        }
+    }
+
     renderDailyMysteryChest();
     const th = p.streakThreshold || 70;
     if (document.getElementById('rule-threshold-text')) document.getElementById('rule-threshold-text').textContent = `${th}%`;
@@ -1679,11 +2102,19 @@ function toggleHabit(id) {
     const ledger = ensureTodayHabitRewardLedger();
     const hid = String(habit.id);
     const starVal = Math.max(0, Number(habit.stars) || 2);
+    
     if (!habit.completed) {
         const prior = ledger[hid];
         habit.completed = true;
         p.totalTasksCompleted = (p.totalTasksCompleted || 0) + 1;
-        if (!prior) {
+        
+        if (prior && !prior.reversed) {
+            evaluateRealtimeTodayStreak(); trackPerfectDayIfAny();
+            addActivityLog(habit.icon || '🌟', `Đánh dấu lại: ${habit.title}`, 'Không cộng thưởng 2 lần');
+            playSoundEffect('complete');
+            showToast('✅ Con đã nhận thưởng việc này hôm nay rồi!', 'bg-indigo-600');
+        } else {
+            // FIXED: Allow re-rewarding if prior was reversed
             p.stars = Math.max(0, Number(p.stars) || 0) + starVal;
             const tok = createPetTreatToken(`habit:${todayStr}:${hid}`);
             if (!p.currentPlant || typeof p.currentPlant !== 'object') p.currentPlant = { type:'strawberry', exp:0 };
@@ -1691,23 +2122,27 @@ function toggleHabit(id) {
             const expBefore = Math.max(0, Math.min(12, Number(p.currentPlant.exp) || 0));
             const waterApplied = expBefore < 12;
             p.currentPlant.exp = Math.min(12, expBefore + 1);
+            
             ledger[hid] = { legacy:false, stars:starVal, treatTokenId:tok.id, waterApplied, plantGeneration:p.plantGeneration, expBefore, earnedAt:new Date().toISOString() };
+            
             const sc = evaluateRealtimeTodayStreak();
             trackPerfectDayIfAny();
             addActivityLog(habit.icon || '🌟', `Hoàn thành: ${habit.title}`, `+${starVal} ⭐`);
             triggerWateringAnimation();
-            if (sc === 'STREAK_GAINED') { playSoundEffect('levelup'); triggerConfetti('big'); speakVietnameseText(`Hoan hô ${p.childName}! Con đã vượt ngưỡng streak và tăng chuỗi ngày lên ${p.streak}!`); showToast(`🔥 ĐẠT NGƯỠNG STREAK! Chuỗi: ${p.streak} ngày!`, 'bg-orange-500'); }
-            else { playSoundEffect('complete'); triggerConfetti('normal'); const wN = waterApplied ? '+1 💧' : '🌱 đủ nước'; showToast(`🎉 Giỏi quá! +${starVal} ⭐, ${wN}, +1 🍓!`, 'bg-pink-500'); }
-            // V7.1: Notify if any pet becomes evolvable
+            
+            if (sc === 'STREAK_GAINED') { 
+                playSoundEffect('levelup'); triggerConfetti('big'); 
+                speakVietnameseText(`Hoan hô ${p.childName}! Con đã vượt ngưỡng streak và tăng chuỗi ngày lên ${p.streak}!`); 
+                showToast(`🔥 ĐẠT NGƯỠNG STREAK! Chuỗi: ${p.streak} ngày!`, 'bg-orange-500'); 
+            } else { 
+                playSoundEffect('complete'); triggerConfetti('normal'); 
+                const wN = waterApplied ? '+1 💧' : '🌱 đủ nước'; 
+                showToast(`🎉 Giỏi quá! +${starVal} ⭐, ${wN}, +1 🍓!`, 'bg-pink-500'); 
+            }
             setTimeout(() => {
                 const anyEvo = Object.values(GARDEN_PETS).some(pet => canEvolvePetQuick(pet.id, p));
                 if (anyEvo) showToast(`✨ Có pet sẵn sàng tiến hóa! Mở Nhãn Dán để xem`, 'bg-fuchsia-600');
             }, 1500);
-        } else {
-            evaluateRealtimeTodayStreak(); trackPerfectDayIfAny();
-            addActivityLog(habit.icon || '🌟', `Đánh dấu lại: ${habit.title}`, 'Không cộng thưởng 2 lần');
-            playSoundEffect('complete');
-            showToast('✅ Con đã nhận thưởng việc này hôm nay rồi!', 'bg-indigo-600');
         }
     } else {
         const reward = ledger[hid];
@@ -1719,11 +2154,13 @@ function toggleHabit(id) {
             if ((Number(p.stars) || 0) < Number(reward.stars || 0)) { showToast(`🔒 Cần ≥ ${reward.stars} ⭐.`, 'bg-amber-500'); return; }
             if (reward.treatTokenId && tIdx < 0) { showToast('🔒 Dâu đã dùng!', 'bg-amber-500'); return; }
             if (!canRevW) { showToast('🔒 Nước đã dùng!', 'bg-amber-500'); return; }
+            
             revStars = Math.max(0, Number(reward.stars) || 0);
             p.stars = Math.max(0, (Number(p.stars) || 0) - revStars);
             if (tIdx >= 0) inv.splice(tIdx, 1);
             p.petTreats = inv.length;
             if (reward.waterApplied) p.currentPlant.exp = Math.max(0, (Number(p.currentPlant.exp) || 0) - 1);
+            
             reward.reversed = true; reward.stars = 0; reward.treatTokenId = null; reward.waterApplied = false;
         }
         habit.completed = false;
@@ -2075,8 +2512,18 @@ function openParentToolsModal() {
     renderStorageHealthWarning();
     renderPetEvolutionSection();
     applyUiPrefs();
+    
+    // V7.2: Populate Magic Challenge and Parent Habits
+    const p = P();
+    const qIn = document.getElementById('magic-challenge-q');
+    const aIn = document.getElementById('magic-challenge-a');
+    if (qIn) qIn.value = p.magicShield?.challenge?.q || '';
+    if (aIn) aIn.value = p.magicShield?.challenge?.a || '';
+    renderMagicShieldStatus();
+    renderParentHabits();
+
     const slider = document.getElementById('streak-threshold-slider');
-    const th = P().streakThreshold || 70;
+    const th = p.streakThreshold || 70;
     if (slider) slider.value = th;
     const d = document.getElementById('streak-threshold-display'); if (d) d.textContent = `${th}%`;
     const ci = document.getElementById('danger-confirm-input'), pi = document.getElementById('danger-pin-input');
@@ -2338,7 +2785,6 @@ function feedCompanionPet() {
     playSoundEffect('levelup'); triggerConfetti('normal');
     speakVietnameseText(msg);
     renderAll();
-    // V7.1: Check if pet just became evolvable
     const check = canEvolvePet(pk);
     if (check.can) {
         setTimeout(() => {
@@ -2387,7 +2833,6 @@ function claimDailyMysteryChest() {
     renderAll();
 }
 
-/* ═══════════════ 🆕 V7.1: STICKER ALBUM với PET FORMS ═══════════════ */
 function openStickerAlbumModal() {
     const p = P();
     const m = document.getElementById('sticker-album-modal');
@@ -2410,7 +2855,6 @@ function openStickerAlbumModal() {
             ${check.can ? `<button onclick="evolvePet('${pet.id}')" class="btn-3d bg-gradient-to-r from-pink-500 to-purple-500 text-white text-[10px] font-extrabold py-1 rounded-lg">✨ → Form ${check.targetForm}</button>` : ''}
         </div>`;
     }).join('');
-    // V7.1: Evolution hint for current pet
     if (hintEl) {
         const curForm = getPetForm(cur);
         const curCheck = canEvolvePet(cur);
@@ -2530,7 +2974,6 @@ function processQuizQuestionsImport(raw) {
     renderCustomQuizList(); renderQuizStats();
 }
 function renderQuizStats() { const l = document.getElementById('quiz-stats-label'); if (!l) return; const d = DEFAULT_QUIZ_QUESTIONS.length; const c = (state.customQuizQuestions || []).length; l.textContent = `📚 ${d} mặc định + 🆕 ${c} tự nhập = 🎯 ${d+c} câu (dùng chung)`; }
-function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function renderCustomQuizList() {
     const c = document.getElementById('custom-quiz-list-container'), cnt = document.getElementById('custom-quiz-count'), dA = document.getElementById('delete-all-quiz-btn');
     if (!c) return;
